@@ -1,0 +1,8 @@
+.cproject
+.idea/
+.project
+.settings/
+Prac1
+obj/*.o
+obj/GUI/*.o
+
