@@ -1,14 +1,14 @@
 /*!
- \file BSP.h
- \brief BSP
+ \file SoC.h
+ \brief SoC
  \author Màrius Montón
  \date Feb 2021
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
-#ifndef GUI_BSP_H_
-#define GUI_BSP_H_
+#ifndef GUI_SOC_H_
+#define GUI_SOC_H_
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -27,10 +27,10 @@ extern "C" {
 
 extern SemaphoreHandle_t GUI_GPIO_IRQ;
 
-void BSP_Init();
+void SoC_Init();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GUI_BSP_H_ */
+#endif /* GUI_SOC_H_ */

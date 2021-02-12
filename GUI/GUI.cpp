@@ -55,7 +55,7 @@ using namespace gl;
 #include "semphr.h"
 #include "GUI.h"
 #include "HAL.h"
-#include "BSP.h"
+#include <GUI/SoC.h>
 #include "Memory.h"
 
 void gui_thread(void *parameters);

@@ -76,7 +76,7 @@ FREERTOS_SRC= \
 
 
 IMGUI_DIR = GUI
-GUI_SOURCES = $(IMGUI_DIR)/GUI.cpp $(IMGUI_DIR)/drivers.cpp $(IMGUI_DIR)/HAL.cpp $(IMGUI_DIR)/Memory.cpp $(IMGUI_DIR)/BSP.cpp
+GUI_SOURCES = $(IMGUI_DIR)/GUI.cpp $(IMGUI_DIR)/drivers.cpp $(IMGUI_DIR)/HAL.cpp $(IMGUI_DIR)/Memory.cpp $(IMGUI_DIR)/SoC.cpp
 GUI_SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 GUI_SOURCES += $(IMGUI_DIR)/imgui_impl_sdl.cpp $(IMGUI_DIR)/imgui_impl_opengl3.cpp
 CXXFLAGS = -I$(IMGUI_DIR)/inc/ -I$(FREERTOS_INC_DIR) -I. -I$(PORTABLE_SRC_DIR)

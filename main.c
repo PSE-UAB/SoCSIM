@@ -43,7 +43,7 @@
 
 #include "GUI/GUI.h"
 #include "GUI/HAL.h"
-#include "GUI/BSP.h"
+#include "GUI/SoC.h"
 
 /**
  *  Specify a struct to send information to different threads.
@@ -117,7 +117,7 @@ int main(void) {
 
     /* Create GUI */
     create_gui();
-    BSP_Init();
+    SoC_Init();
 
     rc = xTaskCreate(example_thread, "Task1", stack_depth, &p1, 1, NULL);
     /**

@@ -1,13 +1,13 @@
 /*!
- \file BSP.cpp
- \brief BSP
+ \file SoC.cpp
+ \brief SoC
  \author Màrius Montón
  \date Feb 2021
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <cstdio>
-#include "BSP.h"
+#include "SoC.h"
 
+#include <cstdio>
 #include "Memory.h"
 
 #include "FreeRTOS.h"
@@ -46,7 +46,7 @@ void GPIO_IRQ_thread(void *parameters) {
     }
 }
 
-void BSP_Init() {
+void SoC_Init() {
 
     xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, NULL, 1, &GPIO_IRQ_handle);
 
