@@ -8,6 +8,7 @@
 
 #include "HAL.h"
 #include "Memory.h"
+#include "SoC.h"
 
 bool GPIO_PinSet(Port port, int pin) {
 
@@ -135,6 +136,35 @@ bool HAL_Trace(char c) {
     return true;
 }
 
-void I2CSlaveSet(int dev, int val) {
-
+bool TIMER_PrescalerSet(int pres) {
+    memory[ADDR_TIMER_CTRL] |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
+    return true;
 }
+
+int TIMER_PrescalerGet() {
+    int pres = memory[ADDR_TIMER_CTRL];
+    pres = pres >> (TIMER_CTRL_PRESCALER_SHIFT) & 0xFF;
+
+    return pres;
+}
+
+bool TIMER_SetTOP(int top) {
+    memory[ADDR_TIMER_TOP] = top;
+    return true;
+}
+
+bool TIMER_SetCMP(int cmp) {
+    memory[ADDR_TIMER_CMP] = cmp;
+    return true;
+}
+
+bool TIMER_Enable() {
+    memory[ADDR_TIMER_CTRL] |= 0x01;
+    return true;
+}
+
+bool TIMER_Disable() {
+    memory[ADDR_TIMER_CTRL] &= 0x00;
+    return true;
+}
+

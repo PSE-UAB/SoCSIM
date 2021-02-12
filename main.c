@@ -63,6 +63,8 @@ void PORT_B_ISR(void) {
     printf("IRQ 2\n");
 }
 
+int cmp = 0;
+
 /**
  *  For this example, we only create one task function and 
  *  pass it in slightly different parameters to change how it 
@@ -90,6 +92,13 @@ void example_thread(void *parameters) {
         } else if (my_parameters->id == 2) {
             GPIO_PinToggle(PORTB, 1);
             HAL_Trace('A');
+            TIMER_PrescalerSet(8);
+            TIMER_SetTOP(8000);
+            TIMER_SetCMP(cmp);
+            cmp = cmp + 1000;
+            if (cmp > 8000) {
+                cmp = 0;
+            }
         }
     }
 
@@ -136,6 +145,11 @@ int main(void) {
      *  Make sure out task was created.
      */
     configASSERT(rc == pdPASS);
+
+
+    TIMER_PrescalerSet(8);
+    TIMER_SetTOP(8000);
+    TIMER_SetCMP(7000);
 
     /**
      *  Start FreeRTOS here.

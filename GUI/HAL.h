@@ -30,8 +30,6 @@ typedef enum {
     PORTD
 } Port;
 
-
-/********************************** MCU Side *********************************/
 /************************************ GPIO ***********************************/
 bool GPIO_PinSet(Port port, int pin);
 bool GPIO_PinClear(Port port, int pin);
@@ -45,13 +43,22 @@ bool NVIC_Enable(int irq);
 bool NVIC_Disable(int irq);
 bool NVIC_IntClear(int irq);
 
+/************************************ Trace ***********************************/
 bool HAL_Trace(char c);
+
+
+/************************************ PWM Timer *******************************/
+bool TIMER_PrescalerSet(int pres);
+int TIMER_PrescalerGet();
+bool TIMER_SetTOP(int top);
+bool TIMER_SetCMP(int cmp);
+bool TIMER_Enable();
+bool TIMER_Disable();
 
 /************************************ I2C  ***********************************/
 
 
-/********************************** GUI Side *********************************/
-void I2CSlaveSet(int dev, int val);
+
 
 #ifdef __cplusplus
 }

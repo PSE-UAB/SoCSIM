@@ -25,9 +25,20 @@ extern "C" {
 #define NVIC_PORTA_IRQ_BIT (1 << NVIC_PORTA_IRQ_NUM)
 #define NVIC_PORTB_IRQ_BIT (1 << NVIC_PORTB_IRQ_NUM)
 
+#define TIMER_CTRL_PRESCALER_SHIFT (8)
+
 extern SemaphoreHandle_t GUI_GPIO_IRQ;
 
 void SoC_Init();
+
+
+/********************************** GUI Side *********************************/
+void I2CSlaveSet(int dev, int val);
+
+int PWMDutyGet();
+int PWMFreqGet();
+int TimerFreqGet();
+
 
 #ifdef __cplusplus
 }

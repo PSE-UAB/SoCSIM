@@ -201,13 +201,13 @@ void gui_thread(void *parameters) {
             uint32_t LED1 = memory[ADDR_PORTA_CTRL];
 
             if (LED1 & (1 << 1)) {
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0.0f, 0.8f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
             } else {
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0.0f, 0.3f, 0.3f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 / 7.0f, 0.3f, 0.3f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 / 7.0f, 0.3f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.3f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 , 0.3f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 , 0.3f, 0.3f));
             }
 
             ImGui::Button("LED 1");
@@ -259,6 +259,30 @@ void gui_thread(void *parameters) {
             }
             ImGui::Text( str );
             ImGui::EndChild();
+            ImGui::End();
+
+            ImGui::Begin("PWM");
+            int pwmfreq = PWMFreqGet();
+            int pwmduty = PWMDutyGet();
+            ImGui::Button("PWM Freq");
+            ImGui::SameLine();
+            ImGui::Text("%d MHz", pwmfreq );
+
+            ImGui::Button("PWM Duty");
+            ImGui::SameLine();
+            ImGui::Text("%d%%", pwmduty );
+
+
+            ImGui::PushID(1);
+
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0,255*pwmduty/100,0));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor(0,255*pwmduty/100,0));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor(0,255*pwmduty/100,0));
+
+            ImGui::Button("PWM");
+            ImGui::PopStyleColor(3);
+            ImGui::PopID();
+
             ImGui::End();
         }
 
