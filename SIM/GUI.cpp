@@ -53,9 +53,9 @@ using namespace gl;
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-#include "GUI.h"
-#include "HAL.h"
-#include <GUI/SoC.h>
+#include "SIM/GUI.h"
+#include "SIM/HAL.h"
+#include <SIM/SoC.h>
 #include "Memory.h"
 
 void gui_thread(void *parameters);

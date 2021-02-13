@@ -10,7 +10,7 @@
 #include "Memory.h"
 #include "SoC.h"
 
-bool GPIO_PinCfg(Port port, int pin, bool out) {
+bool GPIO_PinCfg(Port port, uint32_t pin, bool out) {
 
     uint32_t address = 0;
 
@@ -40,7 +40,7 @@ bool GPIO_PinCfg(Port port, int pin, bool out) {
     return true;
 }
 
-bool GPIO_PinSet(Port port, int pin) {
+bool GPIO_PinSet(Port port, uint32_t pin) {
 
     uint32_t address = 0;
     switch (port) {
@@ -64,7 +64,7 @@ bool GPIO_PinSet(Port port, int pin) {
     return true;
 }
 
-bool GPIO_PinClear(Port port, int pin) {
+bool GPIO_PinClear(Port port, uint32_t pin) {
     uint32_t address = 0;
     switch (port) {
     case PORTA:
@@ -87,7 +87,7 @@ bool GPIO_PinClear(Port port, int pin) {
     return true;
 }
 
-bool GPIO_PinToggle(Port port, int pin) {
+bool GPIO_PinToggle(Port port, uint32_t pin) {
     uint32_t address = 0;
     switch (port) {
     case PORTA:
@@ -110,7 +110,7 @@ bool GPIO_PinToggle(Port port, int pin) {
     return true;
 }
 
-bool GPIO_IntEnable(Port port, int pin) {
+bool GPIO_IntEnable(Port port, uint32_t pin) {
     uint32_t address = 0;
     switch (port) {
     case PORTA:
@@ -133,7 +133,7 @@ bool GPIO_IntEnable(Port port, int pin) {
     return true;
 }
 
-bool GPIO_IntDisable(Port port, int pin) {
+bool GPIO_IntDisable(Port port, uint32_t pin) {
     uint32_t address = 0;
      switch (port) {
      case PORTA:
@@ -156,7 +156,7 @@ bool GPIO_IntDisable(Port port, int pin) {
      return true;
 }
 
-bool NVIC_IntClear(int irq) {
+bool NVIC_IntClear(uint32_t irq) {
     memory[ADDR_NVIC_IRQ] &= ~(1 << irq);
     return true;
 }
@@ -166,24 +166,24 @@ bool HAL_Trace(char c) {
     return true;
 }
 
-bool TIMER_PrescalerSet(int pres) {
+bool TIMER_PrescalerSet(timer_prescaler_t pres) {
     memory[ADDR_TIMER_CTRL] |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
     return true;
 }
 
-int TIMER_PrescalerGet() {
-    int pres = memory[ADDR_TIMER_CTRL];
+timer_prescaler_t TIMER_PrescalerGet() {
+    uint32_t pres = memory[ADDR_TIMER_CTRL];
     pres = pres >> (TIMER_CTRL_PRESCALER_SHIFT) & 0xFF;
 
-    return pres;
+    return (timer_prescaler_t)pres;
 }
 
-bool TIMER_SetTOP(int top) {
+bool TIMER_SetTOP(uint32_t top) {
     memory[ADDR_TIMER_TOP] = top;
     return true;
 }
 
-bool TIMER_SetCMP(int cmp) {
+bool TIMER_SetCMP(uint32_t cmp) {
     memory[ADDR_TIMER_CMP] = cmp;
     return true;
 }
