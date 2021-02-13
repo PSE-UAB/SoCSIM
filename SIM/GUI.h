@@ -14,10 +14,13 @@
 extern "C" {
 #endif
     
+/**
+ * @brief Initializes GUI
+ */
 void create_gui();
 
-extern int GUI_LED1;
-extern int GUI_LED2;
+//extern int GUI_LED1;
+//extern int GUI_LED2;
 
 #ifdef __cplusplus
 }

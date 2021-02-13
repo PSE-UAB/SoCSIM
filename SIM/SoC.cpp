@@ -17,20 +17,48 @@
 /** Timer clock frequency (16 MHz) */
 #define TIMER_IN_FREQ (16000000)
 
+/**
+ * @brief BIT for PORT A IRQ in the NVIC registers
+ */
+#define NVIC_PORTA_IRQ_BIT (1 << NVIC_PORTA_IRQ_NUM)
+
+/**
+ * @brief BIT for PORT B IRQ in the NVIC registers
+ */
+#define NVIC_PORTB_IRQ_BIT (1 << NVIC_PORTB_IRQ_NUM)
+
+/**
+ * @brief Semaphore to indicate that a GPIO IRQ is triggered
+ */
 SemaphoreHandle_t GUI_GPIO_IRQ;
+
+/**
+ * @brief GPIO IRQ task, it depends on #GUI_GPIO_IRQ
+ */
 TaskHandle_t GPIO_IRQ_handle;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @brief PORT A ISR must be defined by the user
+ */
 extern void PORT_A_ISR(void);
+
+/**
+ * @brief PORT B ISR must be defined by the user
+ */
 extern void PORT_B_ISR(void);
 
 #ifdef __cplusplus
 }
 #endif
 
+/**
+ * @brief Thread to manage GPIO IRQs
+ * @param parameters unused
+ */
 void GPIO_IRQ_thread(void *parameters) {
 
     while (true) {

@@ -48,6 +48,7 @@ typedef enum {
  * @brief Configures pin direction
  * @param port GPIO Port
  * @param pin Pin
+ * @param out True: the pin is an Output, False: the pin is an input
  * @return true on success
  */
 bool GPIO_PinCfg(Port port, uint32_t pin, bool out);
