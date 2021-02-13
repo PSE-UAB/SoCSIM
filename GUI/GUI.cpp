@@ -187,20 +187,17 @@ void gui_thread(void *parameters) {
         {
             ImGui::Begin("GPIO");
             if (ImGui::Button("Button 1")) {
-                memory[ADDR_NVIC_IRQ] |= NVIC_PORTA_IRQ_BIT;
-                xSemaphoreGive(GUI_GPIO_IRQ);
+                SoC_Button1Pressed();
             }
 
             ImGui::SameLine();
             if (ImGui::Button("Button 2")) {
-                memory[ADDR_NVIC_IRQ] |= NVIC_PORTB_IRQ_BIT;
-                xSemaphoreGive(GUI_GPIO_IRQ);
+                SoC_Button2Pressed();
             }
 
             ImGui::PushID(0);
-            uint32_t LED1 = memory[ADDR_PORTA_CTRL];
 
-            if (LED1 & (1 << 1)) {
+            if (SoC_LED1On() == true) {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
@@ -218,8 +215,7 @@ void gui_thread(void *parameters) {
             ImGui::SameLine();
             ImGui::PushID(1);
 
-            uint32_t LED2 = memory[ADDR_PORTB_CTRL];
-            if (LED2 & (1 << 1)) {
+            if (SoC_LED2On() == true) {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));

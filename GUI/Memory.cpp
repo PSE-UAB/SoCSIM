@@ -7,7 +7,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "Memory.h"
-
+#include <stdio.h>
 
 std::unordered_map<uint32_t, uint32_t> memory;
+
 

@@ -60,13 +60,47 @@ void I2CSlaveSet(int dev, int val) {
 
 }
 
+void SoC_Button1Pressed() {
+    if (memory[ADDR_PORTA_INT] & (1 << BUTTON_1_PIN)) {
+        memory[ADDR_NVIC_IRQ] |= NVIC_PORTA_IRQ_BIT;
+        xSemaphoreGive(GUI_GPIO_IRQ);
+    }
+}
+
+void SoC_Button2Pressed() {
+    if (memory[ADDR_PORTB_INT] & (1 << BUTTON_2_PIN)) {
+        memory[ADDR_NVIC_IRQ] |= NVIC_PORTB_IRQ_BIT;
+        xSemaphoreGive(GUI_GPIO_IRQ);
+    }
+}
+
+bool SoC_LED1On() {
+
+    if (memory[ADDR_PORTC_CTRL] & (1 << LED_1_PIN)) {
+        if (memory[ADDR_PORTC_OUT] & (1 << LED_1_PIN)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool SoC_LED2On() {
+
+    if (memory[ADDR_PORTD_CTRL] & (1 << LED_2_PIN)) {
+        if (memory[ADDR_PORTD_OUT] & (1 << LED_2_PIN)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 int PWMDutyGet() {
     int duty;
 
     if (memory[ADDR_TIMER_TOP] != 0) {
         duty = 100 * memory[ADDR_TIMER_CMP] / memory[ADDR_TIMER_TOP];
-    }else{
+    } else {
         duty = 0;
     }
 

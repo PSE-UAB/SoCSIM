@@ -10,120 +10,150 @@
 #include "Memory.h"
 #include "SoC.h"
 
-bool GPIO_PinSet(Port port, int pin) {
+bool GPIO_PinCfg(Port port, int pin, bool out) {
+
+    uint32_t address = 0;
 
     switch (port) {
     case PORTA:
-        memory[ADDR_PORTA_CTRL] |= (1 << pin);
-        return true;
+        address = ADDR_PORTA_CTRL;
         break;
     case PORTB:
-        memory[ADDR_PORTB_CTRL] |= (1 << pin);
-        return true;
+        address = ADDR_PORTB_CTRL;
         break;
     case PORTC:
-        memory[ADDR_PORTC_CTRL] |= (1 << pin);
-        return true;
+        address = ADDR_PORTC_CTRL;
         break;
     case PORTD:
-        memory[ADDR_PORTD_CTRL] |= (1 << pin);
-        return true;
+        address = ADDR_PORTD_CTRL;
         break;
     default:
         return false;
     }
+
+    if (out == true) {
+        memory[address] |= (1 << pin);
+    } else {
+        memory[address] &= ~(1 << pin);
+    }
+
+    return true;
+}
+
+bool GPIO_PinSet(Port port, int pin) {
+
+    uint32_t address = 0;
+    switch (port) {
+    case PORTA:
+        address = ADDR_PORTA_OUT;
+        break;
+    case PORTB:
+        address = ADDR_PORTB_OUT;
+        break;
+    case PORTC:
+        address = ADDR_PORTC_OUT;
+        break;
+    case PORTD:
+        address = ADDR_PORTD_OUT;
+        break;
+    default:
+        return false;
+    }
+
+    memory[address] |= (1 << pin);
+    return true;
 }
 
 bool GPIO_PinClear(Port port, int pin) {
+    uint32_t address = 0;
     switch (port) {
     case PORTA:
-        memory[ADDR_PORTA_CTRL] &= ~(1 << pin);
-        return true;
+        address = ADDR_PORTA_OUT;
         break;
     case PORTB:
-        memory[ADDR_PORTB_CTRL] &= ~(1 << pin);
-        return true;
+        address = ADDR_PORTB_OUT;
         break;
     case PORTC:
-        memory[ADDR_PORTC_CTRL] &= ~(1 << pin);
-        return true;
+        address = ADDR_PORTC_OUT;
         break;
     case PORTD:
-        memory[ADDR_PORTD_CTRL] &= ~(1 << pin);
-        return true;
+        address = ADDR_PORTD_OUT;
         break;
     default:
         return false;
     }
+
+    memory[address] &= ~(1 << pin);
+    return true;
 }
 
 bool GPIO_PinToggle(Port port, int pin) {
+    uint32_t address = 0;
     switch (port) {
     case PORTA:
-        memory[ADDR_PORTA_CTRL] ^= (1 << pin);
-        return true;
+        address = ADDR_PORTA_OUT;
         break;
     case PORTB:
-        memory[ADDR_PORTB_CTRL] ^= (1 << pin);
-        return true;
+        address = ADDR_PORTB_OUT;
         break;
     case PORTC:
-        memory[ADDR_PORTC_CTRL] ^= (1 << pin);
-        return true;
+        address = ADDR_PORTC_OUT;
         break;
     case PORTD:
-        memory[ADDR_PORTD_CTRL] ^= (1 << pin);
-        return true;
+        address = ADDR_PORTD_OUT;
         break;
     default:
         return false;
     }
+
+    memory[address] ^= (1 << pin);
+    return true;
 }
 
 bool GPIO_IntEnable(Port port, int pin) {
+    uint32_t address = 0;
     switch (port) {
     case PORTA:
-        memory[ADDR_PORTA_INT] |= (1 << pin);
-        return true;
+        address = ADDR_PORTA_INT;
         break;
     case PORTB:
-        memory[ADDR_PORTB_INT] |= (1 << pin);
-        return true;
+        address = ADDR_PORTD_INT;
         break;
     case PORTC:
-        memory[ADDR_PORTC_INT] |= (1 << pin);
-        return true;
+        address = ADDR_PORTC_INT;
         break;
     case PORTD:
-        memory[ADDR_PORTD_INT] |= (1 << pin);
-        return true;
+        address = ADDR_PORTD_INT;
         break;
     default:
         return false;
     }
+
+    memory[address] |= (1 << pin);
+    return true;
 }
 
 bool GPIO_IntDisable(Port port, int pin) {
-    switch (port) {
-    case PORTA:
-        memory[ADDR_PORTA_INT] &= ~(1 << pin);
-        return true;
-        break;
-    case PORTB:
-        memory[ADDR_PORTB_INT] &= ~(1 << pin);
-        return true;
-        break;
-    case PORTC:
-        memory[ADDR_PORTC_INT] &= ~(1 << pin);
-        return true;
-        break;
-    case PORTD:
-        memory[ADDR_PORTD_INT] &= ~(1 << pin);
-        return true;
-        break;
-    default:
-        return false;
-    }
+    uint32_t address = 0;
+     switch (port) {
+     case PORTA:
+         address = ADDR_PORTA_INT;
+         break;
+     case PORTB:
+         address = ADDR_PORTD_INT;
+         break;
+     case PORTC:
+         address = ADDR_PORTC_INT;
+         break;
+     case PORTD:
+         address = ADDR_PORTD_INT;
+         break;
+     default:
+         return false;
+     }
+
+     memory[address] &= ~(1 << pin);
+     return true;
 }
 
 bool NVIC_IntClear(int irq) {

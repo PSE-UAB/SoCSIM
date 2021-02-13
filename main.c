@@ -81,16 +81,24 @@ void example_thread(void *parameters) {
 
     printf("Thread #%d starting...\n", my_parameters->id);
 
+    GPIO_IntEnable (BUTTON_1_PORT, BUTTON_1_PIN);
+    GPIO_IntEnable (BUTTON_2_PORT, BUTTON_2_PIN);
+
+    GPIO_PinCfg(LED_1_PORT, LED_1_PIN, true);
+    GPIO_PinCfg(LED_2_PORT, LED_2_PIN, true);
+    GPIO_PinSet(LED_1_PORT, LED_1_PIN);
+    GPIO_PinSet(LED_2_PORT, LED_2_PIN);
+
     while (1) {
 
         vTaskDelay(my_parameters->sleep_period);
 
         printf("Thread #%d running\n", my_parameters->id);
         if (my_parameters->id == 1) {
-            GPIO_PinToggle(PORTA, 1);
-            GPIO_IntDisable(PORTA, 1);
+            GPIO_PinToggle(LED_1_PORT, LED_1_PIN);
+            GPIO_IntDisable(LED_1_PORT, LED_1_PIN);
         } else if (my_parameters->id == 2) {
-            GPIO_PinToggle(PORTB, 1);
+            GPIO_PinToggle(LED_2_PORT, LED_2_PIN);
             HAL_Trace('A');
             TIMER_PrescalerSet(8);
             TIMER_SetTOP(8000);
@@ -99,6 +107,8 @@ void example_thread(void *parameters) {
             if (cmp > 8000) {
                 cmp = 0;
             }
+        } else if (my_parameters->id == 3) {
+
         }
     }
 

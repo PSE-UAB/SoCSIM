@@ -1,17 +1,10 @@
 /*!
  \file HAL.h
- \brief HAL
+ \brief Virtual HAL for simulator. It includes GPIO, NVIC, etc.
  \author Màrius Montón
  \date Feb 2021
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
-
-
-/**
- * Virtual HAL for simulator.
- * It includes GPIO, NVIC,
-*/
-
 
 #include <stdint.h>
 #include "FreeRTOS.h"
@@ -31,6 +24,7 @@ typedef enum {
 } Port;
 
 /************************************ GPIO ***********************************/
+bool GPIO_PinCfg(Port port, int pin, bool out);
 bool GPIO_PinSet(Port port, int pin);
 bool GPIO_PinClear(Port port, int pin);
 bool GPIO_PinToggle(Port port, int pin);
@@ -56,8 +50,6 @@ bool TIMER_Enable();
 bool TIMER_Disable();
 
 /************************************ I2C  ***********************************/
-
-
 
 
 #ifdef __cplusplus
