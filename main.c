@@ -41,9 +41,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "GUI/GUI.h"
-#include "GUI/HAL.h"
-#include "GUI/SoC.h"
+#include "SIM/GUI.h"
+#include "SIM/HAL.h"
+#include "SIM/SoC.h"
 
 /**
  *  Specify a struct to send information to different threads.
