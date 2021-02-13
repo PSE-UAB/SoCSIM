@@ -5,4 +5,6 @@
 Prac1
 obj/*.o
 obj/GUI/*.o
+doc/html
+doc/latex
 
