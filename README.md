@@ -1,3 +1,7 @@
+
+[![license](https://img.shields.io/badge/license-GNU--3.0-green.svg)](https://github.com/mariusmm/RISC-V-TLM/blob/master/LICENSE)
+[![Twitter URL](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/mariusmonton)
+
 ## License
 
 This project is licensed by GPLv3. See LICENSE file for more details.
