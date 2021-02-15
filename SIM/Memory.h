@@ -37,6 +37,9 @@ enum {
     ADDR_TIMER_TOP  = 0xC004,
     ADDR_TIMER_CNT  = 0xC008,
     ADDR_TIMER_CMP  = 0xC00C,
+    ADDR_RTC_CTRL   = 0xD000,
+    ADDR_RTC_CNT    = 0xD004,
+    ADDR_RTC_CMP    = 0xD008,
     ADDR_TRACE      = 0xF000,
 };
 

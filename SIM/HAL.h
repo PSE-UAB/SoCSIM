@@ -169,6 +169,58 @@ bool TIMER_Disable();
 /************************************ I2C  ***********************************/
 
 
+/************************************ RTC  ***********************************/
+/**
+ * @brief Enables RTC
+ * @return true on success
+ */
+bool RTC_Enable();
+
+/**
+ * @brief Disables RTC
+ * @return true on success
+ */
+bool RTC_Disable();
+
+/**
+ * @brief Sets compare value for RTC
+ * @param value unix epoch value to set
+ * @return true on success
+ */
+bool RTC_CompareSet(uint32_t value);
+
+/**
+ * @brief Gets compare value for RTC
+ * @return Unix epoch value
+ */
+uint32_t RTC_CompareGet();
+
+/**
+ * @brief Sets date/time to RTC
+ * @param value date/time to set in unix epoch format
+ * @return true on success
+ */
+bool RTC_CounterSet(uint32_t value);
+
+/**
+ * @brief Gets date/time from RTC
+ * @return value date/time in unix epoch format
+ */
+uint32_t RTC_CounterGet();
+
+/**
+ * @brief Enables IRQ generation for RTC
+ * @return true on success
+ */
+bool RTC_IntEnable();
+
+/**
+ * @brief Disables IRQ generation
+ * @return true on success
+ */
+bool RTC_IntDisable();
+
+
 #ifdef __cplusplus
 }
 #endif

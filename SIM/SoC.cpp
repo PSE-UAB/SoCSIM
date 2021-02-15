@@ -6,6 +6,8 @@
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <cstdio>
+#include <time.h>
+
 #include "SoC.h"
 #include "Memory.h"
 #include "HAL.h"
@@ -18,24 +20,41 @@
 #define TIMER_IN_FREQ (16000000)
 
 /**
- * @brief BIT for PORT A IRQ in the NVIC registers
+ * @brief BIT for PORT A IRQ in the NVIC register
  */
 #define NVIC_PORTA_IRQ_BIT (1 << NVIC_PORTA_IRQ_NUM)
 
 /**
- * @brief BIT for PORT B IRQ in the NVIC registers
+ * @brief BIT for PORT B IRQ in the NVIC register
  */
 #define NVIC_PORTB_IRQ_BIT (1 << NVIC_PORTB_IRQ_NUM)
 
+/**
+ * @brief BIT for RTC IRQ in the NVIC register
+ */
+#define NVIC_RTC_IRQ_BIT (1 << NVIC_RTC_IRQ_NUM)
 /**
  * @brief Semaphore to indicate that a GPIO IRQ is triggered
  */
 SemaphoreHandle_t GUI_GPIO_IRQ;
 
 /**
+ * @brief Semaphore to indicate that RTC has triggered its IRQ
+ */
+SemaphoreHandle_t RTC_IRQ;
+
+/**
  * @brief GPIO IRQ task, it depends on #GUI_GPIO_IRQ
  */
 TaskHandle_t GPIO_IRQ_handle;
+
+/**
+ * @brief RTC IRQ task
+ */
+TaskHandle_t RTC_IRQ_handle;
+
+/* forward declaration */
+void RTC_IRQ_thread(void*);
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,12 +63,17 @@ extern "C" {
 /**
  * @brief PORT A ISR must be defined by the user
  */
-extern void PORT_A_ISR(void);
+__attribute__((weak)) void PORT_A_ISR(void);
 
 /**
  * @brief PORT B ISR must be defined by the user
  */
-extern void PORT_B_ISR(void);
+__attribute__((weak)) void PORT_B_ISR(void);
+
+/**
+ * @brief RTC ISR must be defined by the user
+ */
+__attribute__((weak)) void RTC_ISR(void);
 
 #ifdef __cplusplus
 }
@@ -80,8 +104,10 @@ void GPIO_IRQ_thread(void *parameters) {
 void SoC_Init() {
 
     xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, NULL, 1, &GPIO_IRQ_handle);
+    xTaskCreate(RTC_IRQ_thread, "RTC", 10000, NULL, 1, &RTC_IRQ_handle);
 
     GUI_GPIO_IRQ = xSemaphoreCreateBinary();
+    RTC_IRQ = xSemaphoreCreateBinary();
 }
 
 void I2CSlaveSet(int dev, int val) {
@@ -155,3 +181,32 @@ int TimerFreqGet() {
     freq = TIMER_IN_FREQ / prescaler;
     return freq;
 }
+
+/******************** RTC *******************/
+
+void RTC_IRQ_thread(void *parameters) {
+
+    TickType_t pxPreviousWakeTime;
+
+    while (true) {
+        time_t now;
+        time(&now);
+
+        if (memory[ADDR_RTC_CTRL] & 0x01) {
+            memory[ADDR_RTC_CNT] = now;
+            printf("Tick %ld\n", now);
+        }
+
+        if (memory[ADDR_RTC_CTRL] & 0x00000080) {
+            if (now == memory[ADDR_RTC_CMP]) {
+                memory[ADDR_NVIC_IRQ] |= NVIC_RTC_IRQ_BIT;
+                RTC_ISR();
+            }
+        }
+
+
+        /* Check every 1 s. */
+        vTaskDelayUntil( &pxPreviousWakeTime, 1000);
+    }
+}
+

@@ -5,7 +5,6 @@
  \date Feb 2021
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 #include "HAL.h"
 #include "Memory.h"
 #include "SoC.h"
@@ -135,25 +134,25 @@ bool GPIO_IntEnable(Port port, uint32_t pin) {
 
 bool GPIO_IntDisable(Port port, uint32_t pin) {
     uint32_t address = 0;
-     switch (port) {
-     case PORTA:
-         address = ADDR_PORTA_INT;
-         break;
-     case PORTB:
-         address = ADDR_PORTD_INT;
-         break;
-     case PORTC:
-         address = ADDR_PORTC_INT;
-         break;
-     case PORTD:
-         address = ADDR_PORTD_INT;
-         break;
-     default:
-         return false;
-     }
+    switch (port) {
+    case PORTA:
+        address = ADDR_PORTA_INT;
+        break;
+    case PORTB:
+        address = ADDR_PORTD_INT;
+        break;
+    case PORTC:
+        address = ADDR_PORTC_INT;
+        break;
+    case PORTD:
+        address = ADDR_PORTD_INT;
+        break;
+    default:
+        return false;
+    }
 
-     memory[address] &= ~(1 << pin);
-     return true;
+    memory[address] &= ~(1 << pin);
+    return true;
 }
 
 bool NVIC_IntClear(uint32_t irq) {
@@ -175,7 +174,7 @@ timer_prescaler_t TIMER_PrescalerGet() {
     uint32_t pres = memory[ADDR_TIMER_CTRL];
     pres = pres >> (TIMER_CTRL_PRESCALER_SHIFT) & 0xFF;
 
-    return (timer_prescaler_t)pres;
+    return (timer_prescaler_t) pres;
 }
 
 bool TIMER_SetTOP(uint32_t top) {
@@ -197,4 +196,44 @@ bool TIMER_Disable() {
     memory[ADDR_TIMER_CTRL] &= 0x00;
     return true;
 }
+
+/************************************ RTC  ***********************************/
+bool RTC_Enable() {
+    memory[ADDR_RTC_CTRL] |= 0x01;
+    return true;
+}
+
+bool RTC_Disable() {
+    memory[ADDR_RTC_CTRL] &= ~0x01;
+    return true;
+}
+
+bool RTC_CompareSet(uint32_t value) {
+    memory[ADDR_RTC_CMP] = value;
+    return true;
+}
+
+uint32_t RTC_CompareGet() {
+    return memory[ADDR_RTC_CMP];
+}
+
+bool RTC_CounterSet(uint32_t value) {
+    memory[ADDR_RTC_CNT] = value;
+    return true;
+}
+
+uint32_t RTC_CounterGet() {
+    return memory[ADDR_RTC_CNT];
+}
+
+bool RTC_IntEnable() {
+    memory[ADDR_RTC_CTRL] |= 0x80;
+    return true;
+}
+
+bool RTC_IntDisable() {
+    memory[ADDR_RTC_CTRL] &= ~0x80;
+    return true;
+}
+
 
