@@ -3,6 +3,7 @@
 .project
 .settings/
 Prac1
+obj/
 obj/*.o
 obj/GUI/*.o
 doc/html
