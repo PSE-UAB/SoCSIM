@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <iostream>
 #include <SDL.h>
+#include <time.h>
 
 
 
@@ -116,7 +117,7 @@ void gui_thread(void *parameters) {
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED, 500, 500, window_flags);
+                                          SDL_WINDOWPOS_CENTERED, 800, 500, window_flags);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -228,15 +229,12 @@ void gui_thread(void *parameters) {
             ImGui::Button("LED 2");
             ImGui::PopStyleColor(3);
             ImGui::PopID();
-
             ImGui::End();
 
             ImGui::Begin("I2C");
-
             ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
             I2CSlaveSet(1, i2c1);
             ImGui::SameLine();
-
             ImGui::End();
 
             ImGui::Begin("Trace");
@@ -268,9 +266,7 @@ void gui_thread(void *parameters) {
             ImGui::SameLine();
             ImGui::Text("%d%%", pwmduty );
 
-
             ImGui::PushID(1);
-
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor(0,255*pwmduty/100,0));
@@ -278,8 +274,18 @@ void gui_thread(void *parameters) {
             ImGui::Button("PWM");
             ImGui::PopStyleColor(3);
             ImGui::PopID();
-
             ImGui::End();
+
+
+            ImGui::Begin("RTC");
+            uint32_t now = RTC_CounterGet();
+            struct tm *ptm = localtime((time_t*)&now);
+
+            ImGui::Text("CNT: %ld (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
+                    ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+            ImGui::End();
+
+
         }
 
         // Rendering
