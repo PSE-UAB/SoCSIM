@@ -194,7 +194,6 @@ void RTC_IRQ_thread(void *parameters) {
 
         if (memory[ADDR_RTC_CTRL] & 0x01) {
             memory[ADDR_RTC_CNT] = now;
-            printf("Tick %ld\n", now);
         }
 
         if (memory[ADDR_RTC_CTRL] & 0x00000080) {
