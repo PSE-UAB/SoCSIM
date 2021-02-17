@@ -42,6 +42,11 @@ When timer value is less than ADDR_TIMER_CMP output is '0', when greater output 
 
 Timer input clock runs at 16 MHz and can be pre-scaled by a value from 1 to 256 (power of 2 only). 
 
+### RTC
+
+A very basic timer, with 1 second precision that store unix epoch in a register (32 bits).
+It also has a compare register to trigger an IRQ in a date. 
+
 ## Memory map
 
 All registers are 32 bit width.
@@ -70,5 +75,7 @@ All registers are 32 bit width.
 | 0xC000 | ADDR_TIMER_TOP | Top value |
 | 0xC000 | ADDR_TIMER_CNT | Timer counter value |
 | 0xC000 | ADDR_TIMER_CMP | Compare value |
-
+| 0xD000 | ADDR_RTC_CTRL | RTC control register |
+| 0xD004 | ADDR_RTC_CNT  | RTC epoch time |
+| 0xD008 | ADDR_RTC_CMP  | RTC compare register |
 
