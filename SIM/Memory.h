@@ -46,17 +46,11 @@ enum {
 using cb_func = std::function<void(int, int)>;
 
 struct WordMem {
-    WordMem() {
-        data = 0;
-        param_rd = 0;
-        param_wr = 0;
-        cb_rd = nullptr;
-        cb_wr = nullptr;
+    WordMem() :
+            data(0), param_rd(0), param_wr(0), cb_rd(nullptr), cb_wr(nullptr) {
     }
-    //WordMem() = default;
 
     WordMem& operator=(uint32_t a) {
-        /* OK! */
         if (data != a) {
             data = a;
 
