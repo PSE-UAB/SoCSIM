@@ -17,7 +17,9 @@ extern "C" {
 /**
  * @brief Initializes GUI
  */
-void create_gui();
+void gui_create();
+
+void gui_add_trace(char c);
 
 //extern int GUI_LED1;
 //extern int GUI_LED2;

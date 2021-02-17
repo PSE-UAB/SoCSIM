@@ -21,8 +21,8 @@ extern "C" {
 /** BUTTON 1 is connected to Port A */
 #define BUTTON_1_PORT PORTA
 
-/** BUTTON 1 is connected to Pin 0 */
-#define BUTTON_1_PIN 0
+/** BUTTON 1 is connected to Pin 11 */
+#define BUTTON_1_PIN 11
 
 /** BUTTON 2 is connected to Port B */
 #define BUTTON_2_PORT PORTB
@@ -47,6 +47,12 @@ extern "C" {
 
 /** PORT B has IRQ #1 */
 #define NVIC_PORTB_IRQ_NUM 1
+
+/** PORT C has IRQ #2 */
+#define NVIC_PORTC_IRQ_NUM 2
+
+/** PORT D has IRQ #3 */
+#define NVIC_PORTD_IRQ_NUM 3
 
 /** RTC has IRQ #14 */
 #define NVIC_RTC_IRQ_NUM 14
@@ -77,9 +83,19 @@ void I2CSlaveSet(int dev, int val);
 void SoC_Button1Pressed();
 
 /**
+ * @brief Button 1 is released. Updates all necessary GPIO registers
+ */
+void SoC_Button1Released();
+
+/**
  * @brief Button 2 is pressed. Updates all necessary GPIO registers
  */
 void SoC_Button2Pressed();
+
+/**
+ * @brief Button 2 is released. Updates all necessary GPIO registers
+ */
+void SoC_Button2Released();
 
 /**
  * @brief Checks if LED 1 should be on.

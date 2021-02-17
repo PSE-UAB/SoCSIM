@@ -221,6 +221,20 @@ bool RTC_IntEnable();
 bool RTC_IntDisable();
 
 
+/**
+ * @brief Debug function to write to a memory address
+ * @param addr address to access
+ * @param data data to write
+ */
+void HAL_MemoryWrite(uint32_t addr, uint32_t data);
+
+/**
+ * @brief Debug function to read from a memory address
+ * @param addr address to access
+ * @return data read
+ */
+uint32_t HAL_MemoryRead(uint32_t addr);
+
 #ifdef __cplusplus
 }
 #endif

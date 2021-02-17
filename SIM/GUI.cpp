@@ -60,11 +60,12 @@ using namespace gl;
 
 void gui_thread(void *parameters);
 
+ImGuiTextBuffer trace_console;
 
 // Main code
 extern "C" {
 
-void create_gui() {
+void gui_create() {
 
     xTaskCreate(gui_thread,
                 "GUI",
@@ -74,6 +75,8 @@ void create_gui() {
                 NULL);
     }
 }
+
+
 
 /**
  * Thread with the GUI endless loop.
@@ -168,7 +171,7 @@ void gui_thread(void *parameters) {
     TickType_t pxPreviousWakeTime;
     int i2c1 = 128;
 
-    ImGuiTextBuffer trace_console;
+
 
     while (!done) {
         SDL_Event event;
@@ -191,11 +194,15 @@ void gui_thread(void *parameters) {
             ImGui::Begin("GPIO");
             if (ImGui::Button("Button 1")) {
                 SoC_Button1Pressed();
+            } else {
+                SoC_Button1Released();
             }
 
             ImGui::SameLine();
             if (ImGui::Button("Button 2")) {
                 SoC_Button2Pressed();
+            } else {
+                SoC_Button2Released();
             }
 
             ImGui::PushID(0);
@@ -243,11 +250,7 @@ void gui_thread(void *parameters) {
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
 
-            const char c = memory[ADDR_TRACE];
-            if (c != 0) {
-                memory[ADDR_TRACE] = 0;
-                trace_console.appendf("%c", c);
-            }
+
 
             ImGui::Text ( trace_console.c_str() );
             ImGui::EndChild();
@@ -280,6 +283,7 @@ void gui_thread(void *parameters) {
             ImGui::Text("CNT: %ld (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
                     ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             ImGui::End();
+
         }
 
         // Rendering
@@ -304,3 +308,11 @@ void gui_thread(void *parameters) {
     SDL_Quit();
 }
 
+
+void gui_add_trace(char c) {
+
+    if (c != 0) {
+        memory[ADDR_TRACE] = 0;
+        trace_console.appendf("%c", c);
+    }
+}
