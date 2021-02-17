@@ -18,9 +18,8 @@
 #include "imgui_impl_opengl3.h"
 #include <cstdio>
 #include <iostream>
+#include <ctime>
 #include <SDL.h>
-#include <time.h>
-
 
 
 // About Desktop OpenGL function loaders:
@@ -169,6 +168,8 @@ void gui_thread(void *parameters) {
     TickType_t pxPreviousWakeTime;
     int i2c1 = 128;
 
+    ImGuiTextBuffer trace_console;
+
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -186,6 +187,7 @@ void gui_thread(void *parameters) {
         ImGui::NewFrame();
 
         {
+            /************** GPIO ***************/
             ImGui::Begin("GPIO");
             if (ImGui::Button("Button 1")) {
                 SoC_Button1Pressed();
@@ -211,8 +213,6 @@ void gui_thread(void *parameters) {
             ImGui::Button("LED 1");
             ImGui::PopStyleColor(3);
             ImGui::PopID();
-
-
             ImGui::SameLine();
             ImGui::PushID(1);
 
@@ -231,61 +231,55 @@ void gui_thread(void *parameters) {
             ImGui::PopID();
             ImGui::End();
 
+            /************** TRACE ***************/
             ImGui::Begin("I2C");
             ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
             I2CSlaveSet(1, i2c1);
             ImGui::SameLine();
             ImGui::End();
 
+            /************** TRACE ***************/
             ImGui::Begin("Trace");
-
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
-            static char str[80];
-            static int str_idx = 0;
-            char c =  memory[ADDR_TRACE];
+
+            const char c = memory[ADDR_TRACE];
             if (c != 0) {
-                str[str_idx++] = c;
                 memory[ADDR_TRACE] = 0;
-                if (str_idx == 80) {
-                    str_idx = 0;
-                }
+                trace_console.appendf("%c", c);
             }
-            ImGui::Text( str );
+
+            ImGui::Text ( trace_console.c_str() );
             ImGui::EndChild();
             ImGui::End();
 
+            /************** PWM ***************/
             ImGui::Begin("PWM");
             int pwmfreq = PWMFreqGet();
             int pwmduty = PWMDutyGet();
             ImGui::Button("PWM Freq");
             ImGui::SameLine();
             ImGui::Text("%d MHz", pwmfreq );
-
             ImGui::Button("PWM Duty");
             ImGui::SameLine();
             ImGui::Text("%d%%", pwmduty );
-
             ImGui::PushID(1);
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor(0,255*pwmduty/100,0));
-
             ImGui::Button("PWM");
             ImGui::PopStyleColor(3);
             ImGui::PopID();
             ImGui::End();
 
 
+            /************** RTC ***************/
             ImGui::Begin("RTC");
             uint32_t now = RTC_CounterGet();
             struct tm *ptm = localtime((time_t*)&now);
-
             ImGui::Text("CNT: %ld (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
                     ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             ImGui::End();
-
-
         }
 
         // Rendering
@@ -297,7 +291,7 @@ void gui_thread(void *parameters) {
         SDL_GL_SwapWindow(window);
 
         /* Refresh every 100 ms ? */
-        vTaskDelayUntil( &pxPreviousWakeTime, 100);
+        vTaskDelayUntil( &pxPreviousWakeTime, 50);
     }
 
     // Cleanup
