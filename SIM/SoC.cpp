@@ -298,8 +298,11 @@ void RTC_IRQ_thread(void *parameters) {
                 uint32_t aux = memory[ADDR_NVIC_IRQ];
                 aux |= NVIC_RTC_IRQ_BIT;
                 memory[ADDR_NVIC_IRQ] = aux;
-                RTC_ISR();
             }
+        }
+
+        if (memory[ADDR_NVIC_IRQ] & NVIC_RTC_IRQ_BIT) {
+            RTC_ISR();
         }
 
         /* Check every 1 s. */
