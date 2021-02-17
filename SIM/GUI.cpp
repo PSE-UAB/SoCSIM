@@ -238,7 +238,7 @@ void gui_thread(void *parameters) {
             ImGui::PopID();
             ImGui::End();
 
-            /************** TRACE ***************/
+            /************** I2C ***************/
             ImGui::Begin("I2C");
             ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
             I2CSlaveSet(1, i2c1);
@@ -249,9 +249,6 @@ void gui_thread(void *parameters) {
             ImGui::Begin("Trace");
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
-
-
-
             ImGui::Text ( trace_console.c_str() );
             ImGui::EndChild();
             ImGui::End();
@@ -265,22 +262,26 @@ void gui_thread(void *parameters) {
             ImGui::Text("%d MHz", pwmfreq );
             ImGui::Button("PWM Duty");
             ImGui::SameLine();
-            ImGui::Text("%d%%", pwmduty );
+            ImGui::Text("%d %%", pwmduty );
             ImGui::PushID(1);
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor(0,255*pwmduty/100,0));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor(0,255*pwmduty/100,0));
+            ImGui::SameLine();
             ImGui::Button("PWM");
             ImGui::PopStyleColor(3);
             ImGui::PopID();
             ImGui::End();
-
 
             /************** RTC ***************/
             ImGui::Begin("RTC");
             uint32_t now = RTC_CounterGet();
             struct tm *ptm = localtime((time_t*)&now);
             ImGui::Text("CNT: %ld (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
+                    ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+            now = RTC_CompareGet();
+            ptm = localtime((time_t*)&now);
+            ImGui::Text("CMP: %ld (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
                     ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             ImGui::End();
 
