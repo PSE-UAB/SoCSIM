@@ -57,6 +57,9 @@ extern "C" {
 /** RTC has IRQ #14 */
 #define NVIC_RTC_IRQ_NUM 14
 
+/** DAC has IRQ #16 */
+#define NVIC_DAC_IRQ_NUM 16
+
 
 /** Shift value to access PRESCALER value on TIMER_CTRL register */
 #define TIMER_CTRL_PRESCALER_SHIFT (8)
@@ -128,7 +131,8 @@ int PWMFreqGet();
 int TimerFreqGet();
 
 
-
+const int DAC_TOTAL_VALUES = 50;
+float get_DACVal (void* data, int idx);
 
 #ifdef __cplusplus
 }

@@ -291,6 +291,45 @@ bool RTC_IntDisable() {
 }
 
 
+
+/************************************ DAC  ***********************************/
+bool DAC_Enable() {
+    uint32_t aux = memory[ADDR_DAC_CTRL];
+    aux |= 0x01;
+    memory[ADDR_DAC_CTRL] = aux;
+    return true;
+}
+
+bool DAC_Disable() {
+    uint32_t aux = memory[ADDR_DAC_CTRL];
+    aux &= ~0x01;
+    memory[ADDR_DAC_CTRL] = aux;
+
+    return true;
+}
+
+bool DAC_IntEnable() {
+    uint32_t aux = memory[ADDR_DAC_CTRL];
+    aux |= 0x80;
+    memory[ADDR_DAC_CTRL] = aux;
+
+    return true;
+}
+
+bool DAC_IntDisable() {
+    uint32_t aux = memory[ADDR_DAC_CTRL];
+    aux &= ~0x80;
+    memory[ADDR_DAC_CTRL] = aux;
+
+    return true;
+}
+
+bool DAC_Set(uint16_t value) {
+    memory[ADDR_DAC_DATA] = value;
+
+    return true;
+}
+
 void HAL_MemoryWrite(uint32_t addr, uint32_t data) {
     memory[addr] = data;
 }

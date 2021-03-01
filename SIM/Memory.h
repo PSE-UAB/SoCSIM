@@ -41,6 +41,8 @@ enum {
     ADDR_RTC_CNT = 0xD004,
     ADDR_RTC_CMP = 0xD008,
     ADDR_TRACE = 0xF000,
+    ADDR_DAC_CTRL = 0x10000,
+    ADDR_DAC_DATA = 0x10004,
 };
 
 using cb_func = std::function<void(int, int)>;

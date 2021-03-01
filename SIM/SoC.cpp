@@ -46,6 +46,13 @@
  * @brief BIT for RTC IRQ in the NVIC register
  */
 #define NVIC_RTC_IRQ_BIT (1 << NVIC_RTC_IRQ_NUM)
+
+
+/**
+ * @brief BIT for DAC IRQ in the NVIC register
+ */
+#define NVIC_DAC_IRQ_BIT (1 << NVIC_DAC_IRQ_NUM)
+
 /**
  * @brief Semaphore to indicate that a GPIO IRQ is triggered
  */
@@ -66,8 +73,11 @@ TaskHandle_t GPIO_IRQ_handle;
  */
 TaskHandle_t RTC_IRQ_handle;
 
+TaskHandle_t DAC_IRQ_handle;
+
 /* forward declaration */
-void RTC_IRQ_thread(void*);
+void RTC_IRQ_thread(void *);
+void DAC_IRQ_thread(void *);
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,6 +97,11 @@ __attribute__((weak)) void PORT_B_ISR(void);
  * @brief RTC ISR must be defined by the user
  */
 __attribute__((weak)) void RTC_ISR(void);
+
+/**
+ * @brief DAC ISR must be defined by the user
+ */
+__attribute__((weak)) void DAC_ISR(void);
 
 #ifdef __cplusplus
 }
@@ -163,6 +178,8 @@ void SoC_Init() {
     xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, NULL, 1, &GPIO_IRQ_handle);
 
     xTaskCreate(RTC_IRQ_thread, "RTC", 10000, NULL, 1, &RTC_IRQ_handle);
+
+    xTaskCreate(DAC_IRQ_thread, "DAC", 10000, NULL, 1, &DAC_IRQ_handle);
 
     memory[ADDR_PORTA_IN].register_wr_cb(GPIO_in_cb, 1);
     memory[ADDR_PORTB_IN].register_wr_cb(GPIO_in_cb, 2);
@@ -310,3 +327,52 @@ void RTC_IRQ_thread(void *parameters) {
     }
 }
 
+/************************ DAC ***********************/
+
+
+static int wr_idx = 0;
+
+float DACValues[DAC_TOTAL_VALUES] = {0.0};
+
+
+void set_DACVal(float data, int idx) {
+    DACValues[idx] = data;
+}
+
+void insert_DACVal(float data) {
+    set_DACVal(data, wr_idx);
+    wr_idx = wr_idx + 1;
+
+    if (wr_idx >= DAC_TOTAL_VALUES) {
+        wr_idx = 0;
+    }
+}
+
+float get_DACVal (void* data, int idx) {
+    return DACValues[idx];
+}
+
+void DAC_IRQ_thread(void *parameters) {
+    TickType_t pxPreviousWakeTime;
+
+    while (true) {
+
+        if (memory[ADDR_DAC_CTRL] & 0x01) {
+            uint16_t dac_data = memory[ADDR_DAC_DATA];
+            dac_data = dac_data & 0x0FFF;   // DAC uses only 12 bits
+            insert_DACVal(dac_data);
+
+            if (memory[ADDR_DAC_CTRL] & 0x00000080) {
+                uint32_t aux = memory[ADDR_NVIC_IRQ];
+                aux |= NVIC_DAC_IRQ_BIT;
+                memory[ADDR_NVIC_IRQ] = aux;
+            }
+        }
+
+        if (memory[ADDR_NVIC_IRQ] & NVIC_DAC_IRQ_BIT) {
+            DAC_ISR();
+        }
+
+        vTaskDelayUntil(&pxPreviousWakeTime, 100);
+    }
+}

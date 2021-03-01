@@ -220,6 +220,17 @@ bool RTC_IntEnable();
  */
 bool RTC_IntDisable();
 
+/************************************ DAC  ***********************************/
+bool DAC_Enable();
+
+bool DAC_Disable();
+
+bool DAC_IntEnable();
+
+bool DAC_IntDisable();
+
+bool DAC_Set(uint16_t value);
+
 
 /**
  * @brief Debug function to write to a memory address

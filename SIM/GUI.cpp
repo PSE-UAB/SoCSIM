@@ -76,8 +76,6 @@ void gui_create() {
     }
 }
 
-
-
 /**
  * Thread with the GUI endless loop.
  * It executes every 100 ms, seems to be enough.
@@ -285,6 +283,10 @@ void gui_thread(void *parameters) {
                     ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             ImGui::End();
 
+            /*************** DAC ***********/
+            ImGui::Begin("DAC");
+            ImGui::PlotLines("DAC output", get_DACVal, NULL, DAC_TOTAL_VALUES, 0, NULL, 0, 4096, ImVec2(0, 80.0f));
+            ImGui::End();
         }
 
         // Rendering
@@ -295,7 +297,7 @@ void gui_thread(void *parameters) {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
 
-        /* Refresh every 100 ms ? */
+        /* Refresh every 50 ms ? */
         vTaskDelayUntil( &pxPreviousWakeTime, 50);
     }
 
