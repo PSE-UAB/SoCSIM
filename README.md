@@ -26,6 +26,16 @@ The Hardware is emulated in the following files:
 
 This project is licensed by GPLv3. See LICENSE file for more details.
 
+## Buil
+
+```
+mkdir build
+cd build
+cmake ..
+make
+./Prac
+```
+
 ## Virtual peripherals
 
 ### GPIO
