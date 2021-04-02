@@ -135,7 +135,7 @@ int main(void) {
     printf("Simple test for FreeRTOS Linux port.\n");
 
     /* Create GUI */
-    create_gui();
+    gui_create();
     SoC_Init();
 
     rc = xTaskCreate(example_thread, "Task1", stack_depth, &p1, 1, NULL);
