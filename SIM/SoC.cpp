@@ -112,7 +112,7 @@ __attribute__((weak)) void DAC_ISR(void);
  * @param parameters unused
  */
 void GPIO_IRQ_thread(void *parameters) {
-
+    (void) parameters;
     while (true) {
 
         if (xSemaphoreTake(GUI_GPIO_IRQ, portMAX_DELAY) == pdTRUE) {
@@ -170,6 +170,7 @@ void GPIO_in_cb(int val, int param) {
 }
 
 void Trace_cb(int val, int param) {
+    (void) param;
     gui_add_trace(val);
 }
 
@@ -193,7 +194,8 @@ void SoC_Init() {
 }
 
 void I2CSlaveSet(int dev, int val) {
-
+    (void) dev;
+    (void) val;
 }
 
 void SoC_Button1Pressed() {
@@ -298,7 +300,7 @@ int TimerFreqGet() {
 /******************** RTC *******************/
 
 void RTC_IRQ_thread(void *parameters) {
-
+    (void) parameters;
     TickType_t pxPreviousWakeTime;
 
     while (true) {
@@ -349,10 +351,12 @@ void insert_DACVal(float data) {
 }
 
 float get_DACVal (void* data, int idx) {
+    (void) data;
     return DACValues[idx];
 }
 
 void DAC_IRQ_thread(void *parameters) {
+    (void) parameters;
     TickType_t pxPreviousWakeTime;
 
     while (true) {
