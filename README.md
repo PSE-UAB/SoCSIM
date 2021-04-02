@@ -26,14 +26,23 @@ The Hardware is emulated in the following files:
 
 This project is licensed by GPLv3. See LICENSE file for more details.
 
-## Buil
+## Installation
+
+```
+git clone https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+git clone https://github.com/michaelbecker/freertos-addons.git
+git clone git@github.com:mariusmm/SoCSIM.git
+cd SoCSIM
+```
+
+## Build
 
 ```
 mkdir build
 cd build
 cmake ..
 make
-./Prac
+./SoCSIM
 ```
 
 ## Virtual peripherals
