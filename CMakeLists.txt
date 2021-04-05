@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 project(SoCSIM)
 
 # specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_C_STANDARD 11)
 
@@ -22,6 +22,7 @@ include_directories(../freertos-addons/Linux/portable/GCC/Linux)
 find_package(SDL2 REQUIRED)
 include_directories(SoCSIM ${SDL2_INCLUDE_DIRS})
 
+cmake_policy(SET CMP0072 NEW)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
