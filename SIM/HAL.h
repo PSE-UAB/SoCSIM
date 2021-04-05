@@ -6,11 +6,12 @@
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include <stdint.h>
+
 #include "FreeRTOS.h"
 #include "semphr.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 extern "C" {
 #else
 #include <stdbool.h>
@@ -221,16 +222,39 @@ bool RTC_IntEnable();
 bool RTC_IntDisable();
 
 /************************************ DAC  ***********************************/
+/**
+ * @brief Enable DAC peripheral
+ * @return true on success
+ */
 bool DAC_Enable();
 
+/**
+ * @brief Disable DAC peripheral
+ * @return true on success
+ */
 bool DAC_Disable();
 
+/**
+ * @brief Enable DAC interrupts
+ * @return true on success
+ */
 bool DAC_IntEnable();
 
+/**
+ * @brief Disable DAC interrupts
+ * @return true on success
+ */
 bool DAC_IntDisable();
 
+/**
+ * @brief Set DAC output value
+ * @param value value to set
+ * @return true on success
+ */
 bool DAC_Set(uint16_t value);
 
+
+/******************************** Memory access ******************************/
 
 /**
  * @brief Debug function to write to a memory address

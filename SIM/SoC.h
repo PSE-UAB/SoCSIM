@@ -116,19 +116,19 @@ bool SoC_LED2On();
  * @brief Calculates duty cycle for TIMER
  * @return PWM Duty cycle
  */
-int PWMDutyGet();
+unsigned int PWMDutyGet();
 
 /**
  * @brief Calculates duty cycle frequency
  * @return PWM frequency
  */
-int PWMFreqGet();
+unsigned int PWMFreqGet();
 
 /**
  * @brief Calculates TIMER frequency
  * @return TIMER frequency
  */
-int TimerFreqGet();
+unsigned int TimerFreqGet();
 
 
 const int DAC_TOTAL_VALUES = 50;

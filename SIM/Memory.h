@@ -63,7 +63,7 @@ struct WordMem {
         return *this;
     }
 
-    operator int() const {
+    operator uint32_t() const {
         if (cb_rd) {
             cb_rd(data, param_rd);
         }

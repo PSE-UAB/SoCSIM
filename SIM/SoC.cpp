@@ -6,16 +6,12 @@
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <cstdio>
-#include <time.h>
+#include <ctime>
 
 #include "SoC.h"
 #include "Memory.h"
 #include "HAL.h"
 #include "GUI.h"
-
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
 
 /** Timer clock frequency (16 MHz) */
 #define TIMER_IN_FREQ (16000000)
@@ -73,11 +69,14 @@ TaskHandle_t GPIO_IRQ_handle;
  */
 TaskHandle_t RTC_IRQ_handle;
 
+/**
+ * @brief DAC IRQ task
+ */
 TaskHandle_t DAC_IRQ_handle;
 
-/* forward declaration */
-void RTC_IRQ_thread(void *);
-void DAC_IRQ_thread(void *);
+/* Forward declarations */
+[[noreturn]] void RTC_IRQ_thread(void *);
+[[noreturn]] void DAC_IRQ_thread(void *);
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,7 +110,7 @@ __attribute__((weak)) void DAC_ISR(void);
  * @brief Thread to manage GPIO IRQs
  * @param parameters unused
  */
-void GPIO_IRQ_thread(void *parameters) {
+[[noreturn]] void GPIO_IRQ_thread(void *parameters) {
     (void) parameters;
     while (true) {
 
@@ -171,16 +170,14 @@ void GPIO_in_cb(int val, int param) {
 
 void Trace_cb(int val, int param) {
     (void) param;
-    gui_add_trace(val);
+    gui_add_trace((char)(val & 0x00FF));
 }
 
 void SoC_Init() {
 
-    xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, NULL, 1, &GPIO_IRQ_handle);
-
-    xTaskCreate(RTC_IRQ_thread, "RTC", 10000, NULL, 1, &RTC_IRQ_handle);
-
-    xTaskCreate(DAC_IRQ_thread, "DAC", 10000, NULL, 1, &DAC_IRQ_handle);
+    xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, nullptr, 1, &GPIO_IRQ_handle);
+    xTaskCreate(RTC_IRQ_thread, "RTC", 10000, nullptr, 1, &RTC_IRQ_handle);
+    xTaskCreate(DAC_IRQ_thread, "DAC", 10000, nullptr, 1, &DAC_IRQ_handle);
 
     memory[ADDR_PORTA_IN].register_wr_cb(GPIO_in_cb, 1);
     memory[ADDR_PORTB_IN].register_wr_cb(GPIO_in_cb, 2);
@@ -262,11 +259,11 @@ bool SoC_LED2On() {
     return false;
 }
 
-int PWMDutyGet() {
-    int duty;
+unsigned int PWMDutyGet() {
+    unsigned int duty;
 
     if (memory[ADDR_TIMER_TOP] != 0) {
-        duty = 100 * memory[ADDR_TIMER_CMP] / memory[ADDR_TIMER_TOP];
+        duty = 100U * memory[ADDR_TIMER_CMP] / memory[ADDR_TIMER_TOP];
     } else {
         duty = 0;
     }
@@ -274,8 +271,8 @@ int PWMDutyGet() {
     return duty;
 }
 
-int PWMFreqGet() {
-    int freq;
+unsigned int PWMFreqGet() {
+    unsigned int freq;
 
     if (memory[ADDR_TIMER_TOP] != 0) {
         freq = TimerFreqGet() / memory[ADDR_TIMER_TOP];
@@ -286,9 +283,9 @@ int PWMFreqGet() {
     return freq;
 }
 
-int TimerFreqGet() {
-    int prescaler;
-    int freq = 0;
+unsigned int TimerFreqGet() {
+    unsigned int prescaler;
+    unsigned int freq = 0;
 
     prescaler = TIMER_PrescalerGet();
     if (prescaler != 0) {
@@ -299,7 +296,7 @@ int TimerFreqGet() {
 
 /******************** RTC *******************/
 
-void RTC_IRQ_thread(void *parameters) {
+[[noreturn]] void RTC_IRQ_thread(void *parameters) {
     (void) parameters;
     TickType_t pxPreviousWakeTime;
 
@@ -355,15 +352,15 @@ float get_DACVal (void* data, int idx) {
     return DACValues[idx];
 }
 
-void DAC_IRQ_thread(void *parameters) {
+[[noreturn]] void DAC_IRQ_thread(void *parameters) {
     (void) parameters;
     TickType_t pxPreviousWakeTime;
 
     while (true) {
 
         if (memory[ADDR_DAC_CTRL] & 0x01) {
-            uint16_t dac_data = memory[ADDR_DAC_DATA];
-            dac_data = dac_data & 0x0FFF;   // DAC uses only 12 bits
+            uint32_t dac_data = memory[ADDR_DAC_DATA];
+            dac_data = dac_data & 0x00000FFF;   // DAC uses only 12 bits
             insert_DACVal(dac_data);
 
             if (memory[ADDR_DAC_CTRL] & 0x00000080) {
