@@ -26,7 +26,9 @@
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
 //  You may use another loader/header of your choice (glext, glLoadGen, etc.), or chose to manually implement your own.
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+
 #include <GL/gl3w.h>            // Initialize with gl3wInit()
+
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
 #include <GL/glew.h>            // Initialize with glewInit()
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
@@ -58,7 +60,7 @@ using namespace gl;
 
 void gui_thread(void *parameters);
 
-ImGuiTextBuffer trace_console;
+ImGuiTextBuffer *trace_console;
 
 // Main code
 extern "C" {
@@ -71,12 +73,17 @@ void gui_create() {
                 nullptr,
                 1,
                 nullptr);
-    }
+
+    trace_console = new ImGuiTextBuffer();
+
+}
+
+
 }
 
 /**
  * Thread with the GUI endless loop.
- * It executes every 100 ms, seems to be enough.
+ * It executes every 50 ms, seems to be enough.
  * @param parameters unused
  */
 void gui_thread(void *parameters) {
@@ -112,7 +119,7 @@ void gui_thread(void *parameters) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    auto window_flags = (SDL_WindowFlags)(
+    auto window_flags = (SDL_WindowFlags) (
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED, 800, 500, window_flags);
@@ -159,14 +166,13 @@ void gui_thread(void *parameters) {
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-     // Our state
+    // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
     bool done = false;
     TickType_t pxPreviousWakeTime;
     int i2c1 = 128;
-
 
 
     while (!done) {
@@ -205,12 +211,12 @@ void gui_thread(void *parameters) {
 
             if (SoC_LED1On() == true) {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 , 0.8f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
             } else {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.3f, 0.3f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0 , 0.3f, 0.3f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0 , 0.3f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0, 0.3f, 0.3f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0, 0.3f, 0.3f));
             }
 
             ImGui::Button("LED 1");
@@ -245,7 +251,7 @@ void gui_thread(void *parameters) {
             ImGui::Begin("Trace");
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
-            ImGui::Text ( "%s", trace_console.c_str() );
+            ImGui::Text("%s", trace_console->c_str());
             ImGui::EndChild();
             ImGui::End();
 
@@ -255,14 +261,16 @@ void gui_thread(void *parameters) {
             unsigned int pwmduty = PWMDutyGet();
             ImGui::Button("PWM Freq");
             ImGui::SameLine();
-            ImGui::Text("%d MHz", pwmfreq );
+            ImGui::Text("%d MHz", pwmfreq);
             ImGui::Button("PWM Duty");
             ImGui::SameLine();
-            ImGui::Text("%d %%", pwmduty );
+            ImGui::Text("%d %%", pwmduty);
             ImGui::PushID(1);
-            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0,(int) ((255*(float)pwmduty)/100.0f),0));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor(0,(int) ((255*(float)pwmduty)/100.0f),0));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor(0,(int) ((255*(float)pwmduty)/100.0f),0));
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0, (int) ((255 * (float) pwmduty) / 100.0f), 0));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                                  (ImVec4) ImColor(0, (int) ((255 * (float) pwmduty) / 100.0f), 0));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                                  (ImVec4) ImColor(0, (int) ((255 * (float) pwmduty) / 100.0f), 0));
             ImGui::SameLine();
             ImGui::Button("PWM");
             ImGui::PopStyleColor(3);
@@ -272,18 +280,21 @@ void gui_thread(void *parameters) {
             /************** RTC ***************/
             ImGui::Begin("RTC");
             uint32_t now = RTC_CounterGet();
-            struct tm *ptm = localtime((time_t*)&now);
-            ImGui::Text("CNT: %u (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
-                    ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+            struct tm *ptm = localtime((time_t *) &now);
+            ImGui::Text("CNT: %u (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1,
+                        ptm->tm_year + 1900,
+                        ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             now = RTC_CompareGet();
-            ptm = localtime((time_t*)&now);
-            ImGui::Text("CMP: %u (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900 ,
-                    ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+            ptm = localtime((time_t *) &now);
+            ImGui::Text("CMP: %u (%02d/%02d/%04d %02d:%02d:%02d)", now, ptm->tm_mday, ptm->tm_mon + 1,
+                        ptm->tm_year + 1900,
+                        ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
             ImGui::End();
 
             /*************** DAC ***********/
             ImGui::Begin("DAC");
-            ImGui::PlotLines("DAC output", get_DACVal, nullptr, DAC_TOTAL_VALUES, 0, nullptr, 0, 4096, ImVec2(0, 80.0f));
+            ImGui::PlotLines("DAC output", get_DACVal, nullptr, DAC_TOTAL_VALUES, 0, nullptr, 0, 4096,
+                             ImVec2(0, 80.0f));
             ImGui::End();
         }
 
@@ -296,7 +307,7 @@ void gui_thread(void *parameters) {
         SDL_GL_SwapWindow(window);
 
         /* Refresh every 50 ms ? */
-        vTaskDelayUntil( &pxPreviousWakeTime, 50);
+        xTaskDelayUntil(&pxPreviousWakeTime, 50);
     }
 
     // Cleanup
@@ -314,6 +325,6 @@ void gui_add_trace(char c) {
 
     if (c != 0) {
         memory[ADDR_TRACE] = 0;
-        trace_console.appendf("%c", c);
+        trace_console->appendf("%c", c);
     }
 }
