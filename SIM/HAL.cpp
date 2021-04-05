@@ -11,7 +11,7 @@
 
 bool GPIO_PinCfg(Port port, uint32_t pin, bool out) {
 
-    uint32_t address = 0;
+    uint32_t address;
 
     switch (port) {
     case PORTA:
@@ -47,7 +47,7 @@ bool GPIO_PinCfg(Port port, uint32_t pin, bool out) {
 
 bool GPIO_PinSet(Port port, uint32_t pin) {
 
-    uint32_t address = 0;
+    uint32_t address;
     switch (port) {
     case PORTA:
         address = ADDR_PORTA_OUT;
@@ -73,7 +73,7 @@ bool GPIO_PinSet(Port port, uint32_t pin) {
 }
 
 bool GPIO_PinClear(Port port, uint32_t pin) {
-    uint32_t address = 0;
+    uint32_t address;
     switch (port) {
     case PORTA:
         address = ADDR_PORTA_OUT;
@@ -100,7 +100,7 @@ bool GPIO_PinClear(Port port, uint32_t pin) {
 }
 
 bool GPIO_PinToggle(Port port, uint32_t pin) {
-    uint32_t address = 0;
+    uint32_t address;
     switch (port) {
     case PORTA:
         address = ADDR_PORTA_OUT;
@@ -127,7 +127,7 @@ bool GPIO_PinToggle(Port port, uint32_t pin) {
 }
 
 bool GPIO_IntEnable(Port port, uint32_t pin) {
-    uint32_t address = 0;
+    uint32_t address;
     switch (port) {
     case PORTA:
         address = ADDR_PORTA_INT;
@@ -153,7 +153,7 @@ bool GPIO_IntEnable(Port port, uint32_t pin) {
 }
 
 bool GPIO_IntDisable(Port port, uint32_t pin) {
-    uint32_t address = 0;
+    uint32_t address;
     switch (port) {
     case PORTA:
         address = ADDR_PORTA_INT;
@@ -326,6 +326,56 @@ bool DAC_IntDisable() {
 
 bool DAC_Set(uint16_t value) {
     memory[ADDR_DAC_DATA] = value;
+
+    return true;
+}
+
+/************************************ UART ***********************************/
+
+bool UART_Enable() {
+    uint32_t aux = memory[ADDR_UART_CTRL];
+    aux |= 0x01;
+    memory[ADDR_UART_CTRL] = aux;
+
+    return true;
+}
+
+
+bool UART_Disable() {
+    uint32_t aux = memory[ADDR_UART_CTRL];
+    aux &= ~0x01;
+    memory[ADDR_UART_CTRL] = aux;
+
+    return true;
+}
+
+bool UART_IntEnable() {
+    uint32_t aux = memory[ADDR_UART_CTRL];
+    aux |= 0x80;
+    memory[ADDR_UART_CTRL] = aux;
+
+    return true;
+}
+
+bool UART_IntDisable() {
+    uint32_t aux = memory[ADDR_UART_CTRL];
+    aux &= ~0x80;
+    memory[ADDR_UART_CTRL] = aux;
+
+    return true;
+}
+
+uint32_t UART_GetStatus() {
+    return memory[ADDR_UART_STATUS];
+}
+
+uint8_t UART_Rx() {
+    return (memory[ADDR_UART_RXDATA] & 0x000000FF);
+}
+
+
+bool UART_Tx(uint8_t data) {
+    memory[ADDR_UART_TXDATA] = data;
 
     return true;
 }

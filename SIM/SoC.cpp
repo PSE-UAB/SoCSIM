@@ -12,6 +12,7 @@
 #include "Memory.h"
 #include "HAL.h"
 #include "GUI.h"
+#include "UART.h"
 
 /** Timer clock frequency (16 MHz) */
 #define TIMER_IN_FREQ (16000000)
@@ -43,11 +44,15 @@
  */
 #define NVIC_RTC_IRQ_BIT (1 << NVIC_RTC_IRQ_NUM)
 
-
 /**
  * @brief BIT for DAC IRQ in the NVIC register
  */
 #define NVIC_DAC_IRQ_BIT (1 << NVIC_DAC_IRQ_NUM)
+
+/**
+ * @brief BIT for UART IRQ in the NVIC register
+ */
+#define NVIC_UART_IRQ_BIT (1 << NVIC_UART_IRQ_NUM)
 
 /**
  * @brief Semaphore to indicate that a GPIO IRQ is triggered
@@ -58,6 +63,16 @@ SemaphoreHandle_t GUI_GPIO_IRQ;
  * @brief Semaphore to indicate that RTC has triggered its IRQ
  */
 SemaphoreHandle_t RTC_IRQ;
+
+/**
+ * @brief Semaphore to indicate UART new data in RX
+ */
+SemaphoreHandle_t UART_RX_IRQ;
+
+/**
+ * @brief Semaphore to indicate UART finished send TX data
+ */
+SemaphoreHandle_t UART_TX_IRQ;
 
 /**
  * @brief GPIO IRQ task, it depends on #GUI_GPIO_IRQ
@@ -74,9 +89,20 @@ TaskHandle_t RTC_IRQ_handle;
  */
 TaskHandle_t DAC_IRQ_handle;
 
+/**
+ * @brief UART IRQ task
+ */
+TaskHandle_t UART_IRQ_handle;
+
 /* Forward declarations */
 [[noreturn]] void RTC_IRQ_thread(void *);
 [[noreturn]] void DAC_IRQ_thread(void *);
+[[noreturn]] void UART_IRQ_thread(void *);
+
+/**
+ * @brief UART class
+ */
+UART *uart0;
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,6 +127,17 @@ __attribute__((weak)) void RTC_ISR(void);
  * @brief DAC ISR must be defined by the user
  */
 __attribute__((weak)) void DAC_ISR(void);
+
+/**
+ * @brief UART RX ISR must be defined by th user
+ */
+__attribute__((weak)) void UART_RX_ISR(void);
+
+
+/**
+ * @brief UART TX ISR must be defined by th user
+ */
+__attribute__((weak)) void UART_TX_ISR(void);
 
 #ifdef __cplusplus
 }
@@ -178,6 +215,7 @@ void SoC_Init() {
     xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, nullptr, 1, &GPIO_IRQ_handle);
     xTaskCreate(RTC_IRQ_thread, "RTC", 10000, nullptr, 1, &RTC_IRQ_handle);
     xTaskCreate(DAC_IRQ_thread, "DAC", 10000, nullptr, 1, &DAC_IRQ_handle);
+    xTaskCreate(UART_IRQ_thread, "UART", 10000, nullptr, 1, &UART_IRQ_handle);
 
     memory[ADDR_PORTA_IN].register_wr_cb(GPIO_in_cb, 1);
     memory[ADDR_PORTB_IN].register_wr_cb(GPIO_in_cb, 2);
@@ -188,6 +226,9 @@ void SoC_Init() {
 
     GUI_GPIO_IRQ = xSemaphoreCreateBinary();
     RTC_IRQ = xSemaphoreCreateBinary();
+    UART_RX_IRQ = xSemaphoreCreateBinary();
+
+    uart0 = new UART(9600);
 }
 
 void I2CSlaveSet(int dev, int val) {
@@ -375,5 +416,40 @@ float get_DACVal (void* data, int idx) {
         }
 
         xTaskDelayUntil(&pxPreviousWakeTime, 100);
+    }
+}
+
+/******************** UART **********************/
+
+uint16_t UART_GetBaudRate() {
+    return uart0->getBaudrate();
+}
+
+void UART_NotifyRxData() {
+    xSemaphoreGive(UART_RX_IRQ);
+}
+
+const char* getUART_Path() {
+    return uart0->getDevicename().c_str();
+}
+
+
+[[noreturn]] void UART_IRQ_thread(void *parameters) {
+    (void) parameters;
+
+    while (true) {
+
+        if (xSemaphoreTake(UART_RX_IRQ, portMAX_DELAY)) {
+
+            if (memory[ADDR_UART_CTRL] & 0x00000080) {
+                uint32_t aux = memory[ADDR_NVIC_IRQ];
+                aux |= NVIC_UART_IRQ_BIT;
+                memory[ADDR_NVIC_IRQ] = aux;
+            }
+        }
+
+        if (memory[ADDR_NVIC_IRQ] & NVIC_UART_IRQ_BIT) {
+            UART_RX_ISR();
+        }
     }
 }

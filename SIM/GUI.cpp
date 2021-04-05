@@ -296,6 +296,12 @@ void gui_thread(void *parameters) {
             ImGui::PlotLines("DAC output", get_DACVal, nullptr, DAC_TOTAL_VALUES, 0, nullptr, 0, 4096,
                              ImVec2(0, 80.0f));
             ImGui::End();
+
+            /**************** UART **********/
+            ImGui::Begin("UART");
+            std::string device = getUART_Path();
+            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str() );
+            ImGui::End();
         }
 
         // Rendering

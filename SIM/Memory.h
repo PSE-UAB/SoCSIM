@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <functional>
 #include <iostream>
+#include <utility>
 
 enum {
     ADDR_PORTA_CTRL = 0x1000,
@@ -43,6 +44,10 @@ enum {
     ADDR_TRACE = 0xF000,
     ADDR_DAC_CTRL = 0x10000,
     ADDR_DAC_DATA = 0x10004,
+    ADDR_UART_CTRL = 0x20000,
+    ADDR_UART_STATUS = 0x20004,
+    ADDR_UART_TXDATA = 0x20008,
+    ADDR_UART_RXDATA = 0x2000C,
 };
 
 using cb_func = std::function<void(int, int)>;
@@ -97,7 +102,7 @@ struct WordMem {
 #endif
 
     bool register_rd_cb(cb_func cb, uint32_t param) {
-        cb_rd = cb;
+        cb_rd = std::move(cb);
         param_rd = param;
         return true;
     }

@@ -60,6 +60,8 @@ extern "C" {
 /** DAC has IRQ #16 */
 #define NVIC_DAC_IRQ_NUM 16
 
+/** UART has irq #23 */
+#define NVIC_UART_IRQ_NUM 23
 
 /** Shift value to access PRESCALER value on TIMER_CTRL register */
 #define TIMER_CTRL_PRESCALER_SHIFT (8)
@@ -134,8 +136,14 @@ unsigned int TimerFreqGet();
 const int DAC_TOTAL_VALUES = 50;
 float get_DACVal (void* data, int idx);
 
+uint16_t UART_GetBaudRate();
+
+void UART_NotifyRxData();
+
 #ifdef __cplusplus
 }
 #endif
+
+const char *getUART_Path();
 
 #endif /* GUI_SOC_H_ */

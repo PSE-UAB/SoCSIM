@@ -253,6 +253,49 @@ bool DAC_IntDisable();
  */
 bool DAC_Set(uint16_t value);
 
+/************************************ UART ***********************************/
+/**
+ * @brief Enables UART peripheral
+ * @return true on success
+ */
+bool UART_Enable();
+
+/**
+ * @brief Disables UART peripheral
+ * @return true on success
+ */
+bool UART_Disable();
+
+/**
+ * @brief Enables UART interrupts
+ * @return true on success
+ */
+bool UART_IntEnable();
+
+/**
+ * @brief Disables UART interrupts
+ * @return true on success
+ */
+bool UART_IntDisable();
+
+/**
+ * @brief Returns UART status register
+ * @return status register value
+ */
+uint32_t UART_GetStatus();
+
+/**
+ * @brief Receive one frame
+ * @return Data received
+ */
+uint8_t UART_Rx();
+
+/**
+ * @brief Transmit one frame
+ * @param data Data to transmit
+ * @return true on success
+ */
+bool UART_Tx(uint8_t data);
 
 /******************************** Memory access ******************************/
 
