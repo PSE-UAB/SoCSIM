@@ -322,7 +322,7 @@ unsigned int TimerFreqGet() {
         }
 
         /* Check every 1 s. */
-        vTaskDelayUntil(&pxPreviousWakeTime, 1000);
+        xTaskDelayUntil(&pxPreviousWakeTime, 1000);
     }
 }
 
@@ -374,6 +374,6 @@ float get_DACVal (void* data, int idx) {
             DAC_ISR();
         }
 
-        vTaskDelayUntil(&pxPreviousWakeTime, 100);
+        xTaskDelayUntil(&pxPreviousWakeTime, 100);
     }
 }
