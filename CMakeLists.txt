@@ -33,5 +33,19 @@ target_link_libraries(SoCSIM ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_LIBRARI
 target_compile_definitions(SoCSIM PRIVATE IMGUI_IMPL_OPENGL_LOADER_GL3W)
 target_compile_definitions(SoCSIM PRIVATE _REENTRANT)
 
+option(BUILD_DOC "Build documentation" ON)
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/SoCSIM.doxygen)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+    message("Doxygen build started")
+    add_custom_target( doc
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_IN}
+            WORKING_DIRECTORY ${DOXYGEN_OUT}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM )
+else (DOXYGEN_FOUND)
+    message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)
 
 
