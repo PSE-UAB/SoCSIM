@@ -46,7 +46,6 @@ UART::UART(int m_baudrate): baudrate(m_baudrate) {
   cfsetospeed(&newtio, baudrate);
   tcsetattr(fd, TCSANOW, &newtio);
 
-  std::cout << "CTOR FD: " << fd << std::endl;
   pthread_t thread;
   pthread_create(&thread, nullptr, (THREADFUNCPTR) &UART::reader, &fd);
 }
@@ -71,12 +70,11 @@ void UART::send(uint8_t data) const {
         char inputbyte;
         if (read(fd, &inputbyte, 1) == 1) {
             updateRegister(inputbyte);
-            std::cout << "UART: " << inputbyte << std::endl;
         }
     }
 }
 
 void UART::updateRegister(uint8_t val) {
-    memory[ADDR_UART_TXDATA] = val;
+    memory[ADDR_UART_RXDATA] = val;
     UART_NotifyRxData();
 }
