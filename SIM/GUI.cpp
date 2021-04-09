@@ -315,7 +315,7 @@ void gui_thread(void *parameters) {
         SDL_GL_SwapWindow(window);
 
         /* Refresh every 50 ms ? */
-        xTaskDelayUntil(&pxPreviousWakeTime, 50);
+        xTaskDelayUntil(&pxPreviousWakeTime, 100);
     }
 
     // Cleanup
