@@ -392,6 +392,9 @@ unsigned int TimerFreqGet() {
 
 static int wr_idx = 0;
 
+/**
+ * @brief Buffer to store DAC output values
+ */
 float DACValues[DAC_TOTAL_VALUES] = {0.0};
 
 /**

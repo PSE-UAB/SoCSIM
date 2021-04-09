@@ -104,12 +104,24 @@ struct WordMem {
     }
 #endif
 
+    /**
+     * @brief Registers callback function for a memory address
+     * @param cb function to call when memory read
+     * @param param parameter to send to the callback function
+     * @return true
+     */
     bool register_rd_cb(cb_func cb, uint32_t param) {
         cb_rd = std::move(cb);
         param_rd = param;
         return true;
     }
 
+    /**
+     * @brief Registers callback function for a memory address
+     * @param cb function to call when memory written
+     * @param param parameter to send to the callback function
+     * @return true
+     */
     bool register_wr_cb(cb_func cb, uint32_t param) {
         cb_wr = std::move(cb);
         param_wr = param;
