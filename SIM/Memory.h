@@ -50,7 +50,10 @@ enum {
     ADDR_UART_RXDATA = 0x2000C,
 };
 
-using cb_func = std::function<void(int, int)>;
+/**
+ * @brief definition of callback function type
+ */
+using cb_func = std::function<void(uint32_t, uint32_t)>;
 
 struct WordMem {
     WordMem() :
@@ -108,7 +111,7 @@ struct WordMem {
     }
 
     bool register_wr_cb(cb_func cb, uint32_t param) {
-        cb_wr = cb;
+        cb_wr = std::move(cb);
         param_wr = param;
         return true;
     }
