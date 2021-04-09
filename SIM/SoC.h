@@ -132,18 +132,38 @@ unsigned int PWMFreqGet();
  */
 unsigned int TimerFreqGet();
 
-
+/**
+ * DAC buffer size
+ */
 const int DAC_TOTAL_VALUES = 50;
+
+/**
+ * @brief accessor to DAC output buffer for GUI
+ * @param data unused
+ * @param idx buffer index
+ * @return dac sample
+ */
 float get_DACVal (void* data, int idx);
 
+/**
+ * @brief Returns current UART baud rate
+ * @return baud rate
+ */
 uint16_t UART_GetBaudRate();
 
+/**
+ * @brief Notify new symbol received by UART
+ */
 void UART_NotifyRxData();
 
 #ifdef __cplusplus
 }
 #endif
 
+/**
+ * @brief Get UART virtual device name
+ * @return Device name
+ */
 const char *getUART_Path();
 
 #endif /* GUI_SOC_H_ */

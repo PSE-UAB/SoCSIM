@@ -37,8 +37,6 @@
  */
 #define NVIC_PORTD_IRQ_BIT (1 << NVIC_PORTD_IRQ_NUM)
 
-
-
 /**
  * @brief BIT for RTC IRQ in the NVIC register
  */
@@ -95,8 +93,20 @@ TaskHandle_t DAC_IRQ_handle;
 TaskHandle_t UART_IRQ_handle;
 
 /* Forward declarations */
+
+/**
+ * @brief RTC thread
+ */
 [[noreturn]] void RTC_IRQ_thread(void *);
+
+/**
+ * @brief DAC thread
+ */
 [[noreturn]] void DAC_IRQ_thread(void *);
+
+/**
+ * @brief UART thread
+ */
 [[noreturn]] void UART_IRQ_thread(void *);
 
 /**
@@ -133,7 +143,6 @@ __attribute__((weak)) void DAC_ISR(void);
  */
 __attribute__((weak)) void UART_RX_ISR(void);
 
-
 /**
  * @brief UART TX ISR must be defined by th user
  */
@@ -169,6 +178,11 @@ __attribute__((weak)) void UART_TX_ISR(void);
     }
 }
 
+/**
+ * @brief CB function to trigger (if necessary) corresponding GPIO IRQ
+ * @param val PIN that has a change
+ * @param param PORT that has a change
+ */
 void GPIO_in_cb(int val, int param) {
 
     uint32_t addr;
@@ -205,6 +219,11 @@ void GPIO_in_cb(int val, int param) {
     }
 }
 
+/**
+ * @brief CB function to be called when TRACE register is updated
+ * @param val character written
+ * @param param unused
+ */
 void Trace_cb(int val, int param) {
     (void) param;
     gui_add_trace((char)(val & 0x00FF));
@@ -300,6 +319,8 @@ bool SoC_LED2On() {
     return false;
 }
 
+/******************** PWM *******************/
+
 unsigned int PWMDutyGet() {
     unsigned int duty;
 
@@ -369,16 +390,23 @@ unsigned int TimerFreqGet() {
 
 /************************ DAC ***********************/
 
-
 static int wr_idx = 0;
 
 float DACValues[DAC_TOTAL_VALUES] = {0.0};
 
-
+/**
+ * @brief Insert new data to DAC output buffer for GUI
+ * @param data DAC sample
+ * @param idx buffer index
+ */
 void set_DACVal(float data, int idx) {
     DACValues[idx] = data;
 }
 
+/**
+ * @brief Insert new data to DAC output buffer for GUI
+ * @param data DAC sample
+ */
 void insert_DACVal(float data) {
     set_DACVal(data, wr_idx);
     wr_idx = wr_idx + 1;

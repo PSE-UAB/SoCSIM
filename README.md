@@ -88,7 +88,9 @@ It also has a compare register to trigger an IRQ in a date.
 An ITM-like peripheral with a single register that prints out the characters written to its data register
 
 ### DAC
-DAC peripheral able to generate a signal between 0 and 1 volts.
+
+DAC peripheral able to generate a signal between 0 and 1 volts. The DAC works a 10 samples/second.
+
 ## Memory map
 
 All registers are 32 bit width.

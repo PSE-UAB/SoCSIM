@@ -60,6 +60,9 @@ using namespace gl;
 
 void gui_thread(void *parameters);
 
+/**
+ * @brief Text buffer to keep the trace output
+ */
 ImGuiTextBuffer *trace_console;
 
 // Main code
@@ -75,7 +78,6 @@ void gui_create() {
                 nullptr);
 
     trace_console = new ImGuiTextBuffer();
-
 }
 
 
@@ -300,7 +302,7 @@ void gui_thread(void *parameters) {
             /**************** UART **********/
             ImGui::Begin("UART");
             std::string device = getUART_Path();
-            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str() );
+            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str());
             ImGui::End();
         }
 

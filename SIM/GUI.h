@@ -19,6 +19,10 @@ extern "C" {
  */
 void gui_create();
 
+/**
+ * @brief Output character by the virtual trace
+ * @param c character to out
+ */
 void gui_add_trace(char c);
 
 #ifdef __cplusplus
