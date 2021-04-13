@@ -224,7 +224,6 @@ void GPIO_in_cb(int val, int param) {
         uint32_t aux = memory[ADDR_NVIC_IRQ];
         aux |= bit;
         memory[ADDR_NVIC_IRQ] = aux;
-        std::cout << "posting\n";
         sem_post(&mutex_gpio);
     }
 }
