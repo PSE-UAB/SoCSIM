@@ -168,9 +168,7 @@ __attribute__((weak)) void UART_TX_ISR(void);
 [[noreturn]] void GPIO_IRQ_thread(void *parameters) {
     (void) parameters;
     while (true) {
-
-       // if (xSemaphoreTake(GUI_GPIO_IRQ, portMAX_DELAY) == pdTRUE) {
-        sem_wait(&mutex_gpio);
+        if (sem_wait(&mutex_gpio) == 0)
        {
             uint32_t pending_irq = memory[ADDR_NVIC_IRQ];
 
@@ -226,6 +224,7 @@ void GPIO_in_cb(int val, int param) {
         uint32_t aux = memory[ADDR_NVIC_IRQ];
         aux |= bit;
         memory[ADDR_NVIC_IRQ] = aux;
+        std::cout << "posting\n";
         sem_post(&mutex_gpio);
     }
 }
@@ -259,7 +258,7 @@ void SoC_Init() {
     memory[ADDR_TRACE].register_wr_cb(Trace_cb, 0);
 
     //GUI_GPIO_IRQ = xSemaphoreCreateBinary();
-    sem_init (&mutex_gpio, 0,1);
+    sem_init (&mutex_gpio, 0, 0);
     RTC_IRQ = xSemaphoreCreateBinary();
     UART_RX_IRQ = xSemaphoreCreateBinary();
 
