@@ -78,7 +78,6 @@ struct WordMem {
         return data;
     }
 
-#if 0
     int operator &=(int p_data) {
         if (cb_rd) {
             cb_rd(data, param_wr);
@@ -102,7 +101,6 @@ struct WordMem {
         data = data ^ p_data;
         return data;
     }
-#endif
 
     /**
      * @brief Registers callback function for a memory address
