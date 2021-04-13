@@ -19,7 +19,7 @@
 #include <cstdio>
 #include <ctime>
 #include <SDL.h>
-
+#include <thread>
 
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
@@ -58,7 +58,13 @@ using namespace gl;
 #include <SIM/SoC.h>
 #include "Memory.h"
 
+#define USE_RTOS
+#if 0
 void gui_thread(void *parameters);
+#else
+#include <thread>
+void *gui_thread(void *ptr);
+#endif
 
 /**
  * @brief Text buffer to keep the trace output
@@ -70,13 +76,18 @@ extern "C" {
 
 void gui_create() {
 
+#if 0
     xTaskCreate(gui_thread,
                 "GUI",
-                10000,
+                250000,
                 nullptr,
                 1,
                 nullptr);
-
+#else
+    //std::thread first (gui_thread);
+    pthread_t thread1;
+    pthread_create (&thread1, NULL, gui_thread, NULL);
+#endif
     trace_console = new ImGuiTextBuffer();
 }
 
@@ -88,16 +99,16 @@ void gui_create() {
  * It executes every 50 ms, seems to be enough.
  * @param parameters unused
  */
-void gui_thread(void *parameters) {
+void *gui_thread(void *ptr) {
 
-    (void) parameters;
+    (void) ptr;
 
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
         printf("Error: %s\n", SDL_GetError());
-        return;
+        return NULL;
     }
 
     // Decide GL+GLSL versions
@@ -149,7 +160,7 @@ void gui_thread(void *parameters) {
 #endif
     if (err) {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-        return;
+        return NULL;
     }
 
     // Setup Dear ImGui context
@@ -173,8 +184,9 @@ void gui_thread(void *parameters) {
 
     // Main loop
     bool done = false;
-    TickType_t pxPreviousWakeTime;
-    int i2c1 = 128;
+
+    //int i2c1 = 128;
+
 
 
     while (!done) {
@@ -243,11 +255,11 @@ void gui_thread(void *parameters) {
             ImGui::End();
 
             /************** I2C ***************/
-            ImGui::Begin("I2C");
-            ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
-            I2CSlaveSet(1, i2c1);
-            ImGui::SameLine();
-            ImGui::End();
+//            ImGui::Begin("I2C");
+//            ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
+//            I2CSlaveSet(1, i2c1);
+//            ImGui::SameLine();
+//            ImGui::End();
 
             /************** TRACE ***************/
             ImGui::Begin("Trace");
@@ -300,10 +312,10 @@ void gui_thread(void *parameters) {
             ImGui::End();
 
             /**************** UART **********/
-            ImGui::Begin("UART");
-            std::string device = getUART_Path();
-            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str());
-            ImGui::End();
+//            ImGui::Begin("UART");
+//            std::string device = getUART_Path();
+//            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str());
+//            ImGui::End();
         }
 
         // Rendering
@@ -313,9 +325,6 @@ void gui_thread(void *parameters) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
-
-        /* Refresh every 50 ms ? */
-        xTaskDelayUntil(&pxPreviousWakeTime, 100);
     }
 
     // Cleanup
@@ -326,6 +335,8 @@ void gui_thread(void *parameters) {
     SDL_GL_DeleteContext(gl_context);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    return NULL;
 }
 
 
