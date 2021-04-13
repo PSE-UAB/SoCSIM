@@ -6,8 +6,7 @@
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <cstdio>
-#include <ctime>
-
+#include <semaphore.h>
 #include "SoC.h"
 #include "Memory.h"
 #include "HAL.h"
@@ -55,7 +54,7 @@
 /**
  * @brief Semaphore to indicate that a GPIO IRQ is triggered
  */
-SemaphoreHandle_t GUI_GPIO_IRQ;
+sem_t mutex_gpio;
 
 /**
  * @brief Semaphore to indicate that RTC has triggered its IRQ
@@ -92,6 +91,11 @@ TaskHandle_t DAC_IRQ_handle;
  */
 TaskHandle_t UART_IRQ_handle;
 
+/**
+ * @brief ADC IRQ task
+ */
+TaskHandle_t ADC_IRQ_handle;
+
 /* Forward declarations */
 
 /**
@@ -108,6 +112,11 @@ TaskHandle_t UART_IRQ_handle;
  * @brief UART thread
  */
 [[noreturn]] void UART_IRQ_thread(void *);
+
+/**
+ * @brief ADC thread
+ */
+[[noreturn]] void ADC_IRQ_thread(void *);
 
 /**
  * @brief UART class
@@ -160,18 +169,20 @@ __attribute__((weak)) void UART_TX_ISR(void);
     (void) parameters;
     while (true) {
 
-        if (xSemaphoreTake(GUI_GPIO_IRQ, portMAX_DELAY) == pdTRUE) {
+       // if (xSemaphoreTake(GUI_GPIO_IRQ, portMAX_DELAY) == pdTRUE) {
+        sem_wait(&mutex_gpio);
+       {
             uint32_t pending_irq = memory[ADDR_NVIC_IRQ];
 
             if (pending_irq & NVIC_PORTA_IRQ_BIT) {
                 PORT_A_ISR();
-                xSemaphoreGive(GUI_GPIO_IRQ);
+                sem_post(&mutex_gpio);
                 vTaskDelay(10);
             }
 
             if (pending_irq & NVIC_PORTB_IRQ_BIT) {
                 PORT_B_ISR();
-                xSemaphoreGive(GUI_GPIO_IRQ);
+                sem_post(&mutex_gpio);
                 vTaskDelay(10);
             }
         }
@@ -215,7 +226,7 @@ void GPIO_in_cb(int val, int param) {
         uint32_t aux = memory[ADDR_NVIC_IRQ];
         aux |= bit;
         memory[ADDR_NVIC_IRQ] = aux;
-        xSemaphoreGive(GUI_GPIO_IRQ);
+        sem_post(&mutex_gpio);
     }
 }
 
@@ -229,12 +240,16 @@ void Trace_cb(int val, int param) {
     gui_add_trace((char)(val & 0x00FF));
 }
 
+void send_to_uart(int value, int uart);
+
 void SoC_Init() {
 
     xTaskCreate(GPIO_IRQ_thread, "IRQ1", 10000, nullptr, 1, &GPIO_IRQ_handle);
     xTaskCreate(RTC_IRQ_thread, "RTC", 10000, nullptr, 1, &RTC_IRQ_handle);
     xTaskCreate(DAC_IRQ_thread, "DAC", 10000, nullptr, 1, &DAC_IRQ_handle);
     xTaskCreate(UART_IRQ_thread, "UART", 10000, nullptr, 1, &UART_IRQ_handle);
+    //xTaskCreate(ADC_IRQ_thread, "ADC", 10000, nullptr, 1, &ADC_IRQ_handle);
+
 
     memory[ADDR_PORTA_IN].register_wr_cb(GPIO_in_cb, 1);
     memory[ADDR_PORTB_IN].register_wr_cb(GPIO_in_cb, 2);
@@ -243,11 +258,20 @@ void SoC_Init() {
 
     memory[ADDR_TRACE].register_wr_cb(Trace_cb, 0);
 
-    GUI_GPIO_IRQ = xSemaphoreCreateBinary();
+    //GUI_GPIO_IRQ = xSemaphoreCreateBinary();
+    sem_init (&mutex_gpio, 0,1);
     RTC_IRQ = xSemaphoreCreateBinary();
     UART_RX_IRQ = xSemaphoreCreateBinary();
 
     uart0 = new UART(9600);
+
+    memory[ADDR_UART_TXDATA].register_wr_cb ( send_to_uart, 0);
+}
+
+void send_to_uart(int value, int uart) {
+    (void) uart;
+    std::cout << "send_to_uart Tx : " << (char)value << std::endl;
+    //uart0->send(value);
 }
 
 void I2CSlaveSet(int dev, int val) {
@@ -362,20 +386,24 @@ unsigned int TimerFreqGet() {
     (void) parameters;
     TickType_t pxPreviousWakeTime;
 
+    pxPreviousWakeTime = xTaskGetTickCount();
+    uint32_t now = 0;
+
     while (true) {
-        time_t now;
-        time(&now);
 
         if (memory[ADDR_RTC_CTRL] & 0x01) {
             memory[ADDR_RTC_CNT] = now;
         }
 
         if (memory[ADDR_RTC_CTRL] & 0x00000080) {
-            if (now == memory[ADDR_RTC_CMP]) {
-                //memory[ADDR_NVIC_IRQ] |= NVIC_RTC_IRQ_BIT;
+            if (memory[ADDR_RTC_CNT] == memory[ADDR_RTC_CMP]) {
+#if 1
+                memory[ADDR_NVIC_IRQ] |= NVIC_RTC_IRQ_BIT;
+#else
                 uint32_t aux = memory[ADDR_NVIC_IRQ];
                 aux |= NVIC_RTC_IRQ_BIT;
                 memory[ADDR_NVIC_IRQ] = aux;
+#endif
             }
         }
 
@@ -384,6 +412,7 @@ unsigned int TimerFreqGet() {
         }
 
         /* Check every 1 s. */
+        now++;
         xTaskDelayUntil(&pxPreviousWakeTime, 1000);
     }
 }
@@ -428,6 +457,7 @@ float get_DACVal (void* data, int idx) {
     (void) parameters;
     TickType_t pxPreviousWakeTime;
 
+    pxPreviousWakeTime = xTaskGetTickCount();
     while (true) {
 
         if (memory[ADDR_DAC_CTRL] & 0x01) {
@@ -446,7 +476,7 @@ float get_DACVal (void* data, int idx) {
             DAC_ISR();
         }
 
-        xTaskDelayUntil(&pxPreviousWakeTime, 100);
+        xTaskDelayUntil(&pxPreviousWakeTime, 200);
     }
 }
 
@@ -482,5 +512,14 @@ const char* getUART_Path() {
         if (memory[ADDR_NVIC_IRQ] & NVIC_UART_IRQ_BIT) {
             UART_RX_ISR();
         }
+    }
+}
+
+/******************** ADC **********************/
+
+[[noreturn]] void ADC_IRQ_thread(void *parameters) {
+    (void) parameters;
+    while(1) {
+
     }
 }
