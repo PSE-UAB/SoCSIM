@@ -105,6 +105,7 @@ extern "C" {
 #define configUSE_COUNTING_SEMAPHORES			1
 #define configUSE_QUEUE_SETS					1
 #define configUSE_TASK_NOTIFICATIONS			1
+#define configSTACK_DEPTH_TYPE                  uint32_t
 
 /* Software timer related configuration options. */
 #define configUSE_TIMERS						1
