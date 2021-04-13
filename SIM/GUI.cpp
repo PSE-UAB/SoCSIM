@@ -18,8 +18,8 @@
 #include "imgui_impl_opengl3.h"
 #include <cstdio>
 #include <ctime>
-#include <SDL.h>
 #include <thread>
+#include <SDL.h>
 
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
@@ -51,20 +51,13 @@ using namespace gl;
 
 #endif
 
-#include "FreeRTOS.h"
-#include "task.h"
 #include "SIM/GUI.h"
 #include "SIM/HAL.h"
 #include <SIM/SoC.h>
 #include "Memory.h"
 
-#define USE_RTOS
-#if 0
-void gui_thread(void *parameters);
-#else
-#include <thread>
+
 void *gui_thread(void *ptr);
-#endif
 
 /**
  * @brief Text buffer to keep the trace output
@@ -76,18 +69,9 @@ extern "C" {
 
 void gui_create() {
 
-#if 0
-    xTaskCreate(gui_thread,
-                "GUI",
-                250000,
-                nullptr,
-                1,
-                nullptr);
-#else
-    //std::thread first (gui_thread);
     pthread_t thread1;
-    pthread_create (&thread1, NULL, gui_thread, NULL);
-#endif
+    pthread_create (&thread1, nullptr, gui_thread, nullptr);
+
     trace_console = new ImGuiTextBuffer();
 }
 
@@ -96,7 +80,6 @@ void gui_create() {
 
 /**
  * Thread with the GUI endless loop.
- * It executes every 50 ms, seems to be enough.
  * @param parameters unused
  */
 void *gui_thread(void *ptr) {
@@ -108,7 +91,7 @@ void *gui_thread(void *ptr) {
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to latest version of SDL is recommended!)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
         printf("Error: %s\n", SDL_GetError());
-        return NULL;
+        return nullptr;
     }
 
     // Decide GL+GLSL versions
@@ -160,7 +143,7 @@ void *gui_thread(void *ptr) {
 #endif
     if (err) {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
-        return NULL;
+        return nullptr;
     }
 
     // Setup Dear ImGui context
@@ -312,10 +295,10 @@ void *gui_thread(void *ptr) {
             ImGui::End();
 
             /**************** UART **********/
-//            ImGui::Begin("UART");
-//            std::string device = getUART_Path();
-//            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str());
-//            ImGui::End();
+            ImGui::Begin("UART");
+            std::string device = getUART_Path();
+            ImGui::Text("Baudrate %d %s", UART_GetBaudRate(), device.c_str());
+            ImGui::End();
         }
 
         // Rendering
@@ -336,7 +319,7 @@ void *gui_thread(void *ptr) {
     SDL_DestroyWindow(window);
     SDL_Quit();
 
-    return NULL;
+    return nullptr;
 }
 
 
