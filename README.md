@@ -80,7 +80,7 @@ Timer input clock runs at 16 MHz and can be pre-scaled by a value from 1 to 256 
 
 ### RTC
 
-A very basic timer, with 1 second precision that store unix epoch in a register (32 bits).
+A very basic RTC timer, with 1 second precision that store unix epoch in a register (32 bits).
 It also has a compare register to trigger an IRQ in a date. 
 
 ### TRACE
@@ -90,6 +90,10 @@ An ITM-like peripheral with a single register that prints out the characters wri
 ### DAC
 
 DAC peripheral able to generate a signal between 0 and 1 volts. The DAC works a 10 samples/second.
+
+### Watchdog
+
+Watchdog peripheral that can halt de simulation (simulating a system reset). It includes a prescaler.
 
 ## Memory map
 
@@ -124,5 +128,6 @@ All registers are 32 bit width.
 | 0xD008 | ADDR RTC CMP  | RTC compare register |
 | 0xF000 | ADDR TRACE  |  ITM like tracer | 
 | 0x10000 | ADDR DAC CTRL |  DAC control register | 
-| 0x10004 | ADDR DAC DATA | DAC sample register |   
- 
+| 0x10004 | ADDR DAC DATA | DAC sample register |
+| 0x80000 | ADDR_WDOG_CTRL | Watchdog Ctrl register |  
+| 0x80004 | ADDR_WDOG_CMD | Watchdog command register |
