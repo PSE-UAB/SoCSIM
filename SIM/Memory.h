@@ -52,6 +52,8 @@ enum {
     ADDR_ADC_CTRL    = 0x30004,
     ADDR_ADC_DATA    = 0x30008,
     ADDR_ADC_STATUS  = 0x3000C,
+    ADDR_WDOG_CTRL   = 0x80000,
+    ADDR_WDOG_CMD    = 0x80004,
 };
 
 /**
@@ -64,14 +66,13 @@ struct WordMem {
             data(0), param_rd(0), param_wr(0), cb_rd(nullptr), cb_wr(nullptr) {
     }
 
-    WordMem& operator=(uint32_t a) {
-        if (data != a) {
-            data = a;
+    WordMem &operator=(uint32_t val) {
+        data = val;
 
-            if (cb_wr) {
-                cb_wr(a, param_wr);
-            }
+        if (cb_wr) {
+            cb_wr(val, param_wr);
         }
+
         return *this;
     }
 
