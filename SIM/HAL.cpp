@@ -31,15 +31,21 @@ bool GPIO_PinCfg(Port port, uint32_t pin, bool out) {
     }
 
     if (out == true) {
-        //memory[address] |= (1 << pin);
+#if 1
+        memory[address] |= (1 << pin);
+#else
         uint32_t aux = memory[address];
         aux |= (1 << pin);
         memory[address] = aux;
+#endif
     } else {
-        //memory[address] &= ~(1 << pin);
+#if 1
+        memory[address] &= ~(1 << pin);
+#else
         uint32_t aux = memory[address];
         aux &= ~(1 << pin);
         memory[address] = aux;
+#endif
     }
 
     return true;
@@ -65,10 +71,14 @@ bool GPIO_PinSet(Port port, uint32_t pin) {
         return false;
     }
 
-    // memory[address] |= (1 << pin);
+#if 1
+    memory[address] |= (1 << pin);
+#else
     uint32_t aux = memory[address];
     aux |= (1 << pin);
     memory[address] = aux;
+#endif
+
     return true;
 }
 
@@ -91,11 +101,13 @@ bool GPIO_PinClear(Port port, uint32_t pin) {
         return false;
     }
 
-    // memory[address] &= ~(1 << pin);
+#if 1
+    memory[address] &= ~(1 << pin);
+#else
     uint32_t aux = memory[address];
     aux &= ~(1 << pin);
     memory[address] = aux;
-
+#endif
     return true;
 }
 
@@ -118,11 +130,13 @@ bool GPIO_PinToggle(Port port, uint32_t pin) {
         return false;
     }
 
-    // memory[address] ^= (1 << pin);
+#if 1
+    memory[address] ^= (1 << pin);
+#else
     uint32_t aux = memory[address];
     aux ^= (1 << pin);
     memory[address] = aux;
-
+#endif
     return true;
 }
 
@@ -145,10 +159,13 @@ bool GPIO_IntEnable(Port port, uint32_t pin) {
         return false;
     }
 
-    // memory[address] |= (1 << pin);
+#if 1
+    memory[address] |= (1 << pin);
+#else
     uint32_t aux = memory[address];
     aux |= (1 << pin);
     memory[address] = aux;
+#endif
     return true;
 }
 
@@ -171,18 +188,25 @@ bool GPIO_IntDisable(Port port, uint32_t pin) {
         return false;
     }
 
-    // memory[address] &= ~(1 << pin);
+#if 1
+    memory[address] &= ~(1 << pin);
+#else
     uint32_t aux = memory[address];
     aux &= ~(1 << pin);
     memory[address] = aux;
+#endif
     return true;
 }
 
 bool NVIC_IntClear(uint32_t irq) {
-    // memory[ADDR_NVIC_IRQ] &= ~(1 << irq)
+
+#if 1
+    memory[ADDR_NVIC_IRQ] &= ~(1 << irq);
+#else
     uint32_t aux = memory[ADDR_NVIC_IRQ];
     aux &= ~(1 << irq);
     memory[ADDR_NVIC_IRQ] = aux;
+#endif
     return true;
 }
 
@@ -192,11 +216,13 @@ bool HAL_Trace(char c) {
 }
 
 bool TIMER_PrescalerSet(timer_prescaler_t pres) {
-    // memory[ADDR_TIMER_CTRL] |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
+#if 1
+    memory[ADDR_TIMER_CTRL] |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
+#else
     uint32_t aux = memory[ADDR_TIMER_CTRL];
     aux |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
     memory[ADDR_TIMER_CTRL] = aux;
-
+#endif
     return true;
 }
 
@@ -218,39 +244,47 @@ bool TIMER_SetCMP(uint32_t cmp) {
 }
 
 bool TIMER_Enable() {
-    // memory[ADDR_TIMER_CTRL] |= 0x01;
+#if 1
+    memory[ADDR_TIMER_CTRL] |= 0x01;
+#else
     uint32_t aux = memory[ADDR_TIMER_CTRL];
     aux |= 0x01;
     memory[ADDR_TIMER_CTRL] = aux;
-
+#endif
     return true;
 }
 
 bool TIMER_Disable() {
-    // memory[ADDR_TIMER_CTRL] &= 0x00;
+#if 1
+    memory[ADDR_TIMER_CTRL] &= 0x00;
+#else
     uint32_t aux = memory[ADDR_TIMER_CTRL];
     aux &= ~0x01;
     memory[ADDR_TIMER_CTRL] = aux;
+#endif
     return true;
 }
 
 /************************************ RTC  ***********************************/
 bool RTC_Enable() {
-    //memory[ADDR_RTC_CTRL] |= 0x01;
+#if 1
+    memory[ADDR_RTC_CTRL] |= 0x01;
+#else
     uint32_t aux = memory[ADDR_RTC_CTRL];
     aux |= 0x01;
     memory[ADDR_RTC_CTRL] = aux;
-
+#endif
     return true;
 }
 
 bool RTC_Disable() {
-    //memory[ADDR_RTC_CTRL] &= ~0x01;
-
+#if 1
+    memory[ADDR_RTC_CTRL] &= ~0x01;
+#else
     uint32_t aux = memory[ADDR_RTC_CTRL];
     aux &= ~0x01;
     memory[ADDR_RTC_CTRL] = aux;
-
+#endif
     return true;
 }
 
@@ -273,20 +307,24 @@ uint32_t RTC_CounterGet() {
 }
 
 bool RTC_IntEnable() {
-    // memory[ADDR_RTC_CTRL] |= 0x80;
+#if 1
+    memory[ADDR_RTC_CTRL] |= 0x80;
+#else
     uint32_t aux = memory[ADDR_RTC_CTRL];
     aux |= 0x80;
     memory[ADDR_RTC_CTRL] = aux;
-
+#endif
     return true;
 }
 
 bool RTC_IntDisable() {
-    //memory[ADDR_RTC_CTRL] &= ~0x80;
+#if 1
+    memory[ADDR_RTC_CTRL] &= ~0x80;
+#else
     uint32_t aux = memory[ADDR_RTC_CTRL];
     aux &= ~0x80;
     memory[ADDR_RTC_CTRL] = aux;
-
+#endif
     return true;
 }
 
@@ -294,74 +332,50 @@ bool RTC_IntDisable() {
 
 /************************************ DAC  ***********************************/
 bool DAC_Enable() {
-    uint32_t aux = memory[ADDR_DAC_CTRL];
-    aux |= 0x01;
-    memory[ADDR_DAC_CTRL] = aux;
+    memory[ADDR_DAC_CTRL] |= 0x01;
     return true;
 }
 
 bool DAC_Disable() {
-    uint32_t aux = memory[ADDR_DAC_CTRL];
-    aux &= ~0x01;
-    memory[ADDR_DAC_CTRL] = aux;
-
+    memory[ADDR_DAC_CTRL] &= ~0x01;
     return true;
 }
 
 bool DAC_IntEnable() {
-    uint32_t aux = memory[ADDR_DAC_CTRL];
-    aux |= 0x80;
-    memory[ADDR_DAC_CTRL] = aux;
-
+    memory[ADDR_DAC_CTRL] |= 0x80;
     return true;
 }
 
 bool DAC_IntDisable() {
-    uint32_t aux = memory[ADDR_DAC_CTRL];
-    aux &= ~0x80;
-    memory[ADDR_DAC_CTRL] = aux;
-
+    memory[ADDR_DAC_CTRL] &= ~0x80;
     return true;
 }
 
 bool DAC_Set(uint16_t value) {
     memory[ADDR_DAC_DATA] = value;
-
     return true;
 }
 
 /************************************ UART ***********************************/
 
 bool UART_Enable() {
-    uint32_t aux = memory[ADDR_UART_CTRL];
-    aux |= 0x01;
-    memory[ADDR_UART_CTRL] = aux;
-
+    memory[ADDR_UART_CTRL] |= 0x01;
     return true;
 }
 
 
 bool UART_Disable() {
-    uint32_t aux = memory[ADDR_UART_CTRL];
-    aux &= ~0x01;
-    memory[ADDR_UART_CTRL] = aux;
-
+    memory[ADDR_UART_CTRL] &= ~0x01;
     return true;
 }
 
 bool UART_IntEnable() {
-    uint32_t aux = memory[ADDR_UART_CTRL];
-    aux |= 0x80;
-    memory[ADDR_UART_CTRL] = aux;
-
+    memory[ADDR_UART_CTRL] |= 0x80;
     return true;
 }
 
 bool UART_IntDisable() {
-    uint32_t aux = memory[ADDR_UART_CTRL];
-    aux &= ~0x80;
-    memory[ADDR_UART_CTRL] = aux;
-
+    memory[ADDR_UART_CTRL] &= ~0x80;
     return true;
 }
 
@@ -376,10 +390,64 @@ uint8_t UART_Rx() {
 
 bool UART_Tx(uint8_t data) {
     memory[ADDR_UART_TXDATA] = data;
-
     return true;
 }
 
+
+/************************************ ADC ************************************/
+bool ADC_Init(ADC_channel_t ch) {
+    uint32_t aux;
+    switch (ch) {
+        case ADC_CHAN_0:
+            aux = (1 << 2);
+            break;
+        case ADC_CHAN_1:
+            aux = (1 << 3);
+            break;
+        default:
+            aux = 0;
+            break;
+    }
+
+    memory[ADDR_ADC_ADMUX] = aux;
+    return true;
+}
+
+bool ADC_Enable() {
+    memory[ADDR_ADC_CTRL] |= 0x01;
+    return true;
+}
+
+bool ADC_Disable() {
+    memory[ADDR_ADC_CTRL] &= ~0x01;
+    return true;
+}
+
+bool ADC_IntEnable() {
+    memory[ADDR_ADC_CTRL]  |= 0x80;
+    return true;
+}
+
+bool ADC_IntDisable() {
+    memory[ADDR_ADC_CTRL] &= ~0x80;
+    return true;
+}
+
+uint32_t ADC_GetStatus() {
+    return memory[ADDR_ADC_STATUS];
+}
+
+uint32_t ADC_GetData() {
+    return memory[ADDR_ADC_DATA];
+}
+
+#define RTC_CNT  (&memory[ADDR_RTC_CNT])
+
+uint32_t get_test() {
+   return *RTC_CNT;
+}
+
+/******************************** Memory access ******************************/
 void HAL_MemoryWrite(uint32_t addr, uint32_t data) {
     memory[addr] = data;
 }

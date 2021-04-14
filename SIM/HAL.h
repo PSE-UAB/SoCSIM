@@ -27,6 +27,11 @@ typedef enum {
     PORTD
 } Port;
 
+typedef enum {
+    ADC_CHAN_0 = 0,
+    ADC_CHAN_1 = 1,
+} ADC_channel_t;
+
 /**
  * @brief Timer pre-scaler possible values
  */
@@ -296,6 +301,18 @@ uint8_t UART_Rx();
  * @return true on success
  */
 bool UART_Tx(uint8_t data);
+
+/************************************ ADC ************************************/
+
+bool ADC_Init();
+bool ADC_Enable();
+bool ADC_Disable();
+bool ADC_IntEnable();
+bool ADC_IntDisable();
+uint32_t ADC_GetStatus();
+uint32_t ADC_GetData();
+
+
 
 /******************************** Memory access ******************************/
 
