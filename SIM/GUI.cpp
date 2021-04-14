@@ -80,7 +80,7 @@ void gui_create() {
 
 /**
  * Thread with the GUI endless loop.
- * @param parameters unused
+ * @param ptr unused
  */
 void *gui_thread(void *ptr) {
 
@@ -258,10 +258,10 @@ void *gui_thread(void *ptr) {
             unsigned int pwmduty = PWMDutyGet();
             ImGui::Button("PWM Freq");
             ImGui::SameLine();
-            ImGui::Text("%d MHz", pwmfreq);
+            ImGui::Text("%3d MHz", pwmfreq);
             ImGui::Button("PWM Duty");
             ImGui::SameLine();
-            ImGui::Text("%d %%", pwmduty);
+            ImGui::Text("%3d %%", pwmduty);
             ImGui::PushID(1);
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor(0, (int) ((255 * (float) pwmduty) / 100.0f), 0));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
