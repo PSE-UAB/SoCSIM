@@ -69,31 +69,39 @@ There are 4 GPIO ports (PORTA, PORTB, PORTC & PORTD).
 
 ### Interrupt Controller
 
-There is a basic Interrupt Controller with only two registers, NVIC_CTRL 
+There is a basic Interrupt Controller with only two registers, NVIC_CTRL and NVIC_IRQ.
 
 ### PWM TIMER
 
 This timer is only able to generate a PWM signal, it counts from 0 to value ADDR_TIMER_TOP and starts over. 
 When timer value is less than ADDR_TIMER_CMP output is '0', when greater output is '1'. 
 
-Timer input clock runs at 16 MHz and can be pre-scaled by a value from 1 to 256 (power of 2 only). 
+Timer input clock runs at 16 MHz and can be pre-scaled by a value from 1 to 256 (powers of 2 only). 
 
 ### RTC
 
-A very basic RTC timer, with 1 second precision that store unix epoch in a register (32 bits).
-It also has a compare register to trigger an IRQ in a date. 
+A very basic RTC timer, with 1 second precision that store seconds in the RTC_CNT register (32 bits).
+It also has a compare register (RTC_CMP) to trigger an IRQ if both registers are equal. 
 
 ### TRACE
 
-An ITM-like peripheral with a single register that prints out the characters written to its data register
+An ITM-like peripheral with a single register that prints out the characters written to its data register.
 
 ### DAC
 
-DAC peripheral able to generate a signal between 0 and 1 volts. The DAC works a 10 samples/second.
+DAC peripheral able to generate a signal between 0 and 1 volts. The DAC works a 10 samples/second in continuous mode.
+* DAC_CTRL bit0 enables (1) /disables (0) DAC peripheral.
+* DAC_TRL bit7 enables (1) / disables (0) DAC IRQ. DAC triggers a IRQ when conversion is complete.
+* DAC_DATA bit 11-0 Data register (12 bits)
 
 ### Watchdog
 
 Watchdog peripheral that can halt de simulation (simulating a system reset). It includes a prescaler.
+The watchdog has a clock of 128 kHz and the counter starts with 2048. When counter reaches 0 resets the system (halts de simulation).
+There is a prescaler (WDOG_CTRL bits 15 to 8) to the input clock (powers of 2).
+Once enabled (WDOG_CTRL bit 0 to '1') watchdog can't be disabled.
+
+To properly feed the Watchdog, the magic number 0x00505345 must be written to register WDOG_CMD.
 
 ## Memory map
 
