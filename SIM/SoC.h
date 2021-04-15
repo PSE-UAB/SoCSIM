@@ -66,7 +66,8 @@ extern "C" {
 /** Shift value to access PRESCALER value on TIMER_CTRL register */
 #define TIMER_CTRL_PRESCALER_SHIFT (8)
 
-extern SemaphoreHandle_t GUI_GPIO_IRQ;
+/** Shift value to access PRESCALER value on WDOG_CTRL register */
+#define WDT_CTRL_PRESCALER_SHIFT (8)
 
 /**
  * @brief Initializes SoC library
@@ -145,7 +146,7 @@ const int DAC_TOTAL_VALUES = 50;
  */
 float get_DACVal (void* data, int idx);
 
-/**
+/**Anna Casacoberta
  * @brief Returns current UART baud rate
  * @return baud rate
  */

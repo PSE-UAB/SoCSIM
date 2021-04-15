@@ -7,6 +7,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <cstdio>
 #include <semaphore.h>
+
 #include "SoC.h"
 #include "Memory.h"
 #include "HAL.h"
@@ -57,11 +58,6 @@
 sem_t mutex_gpio;
 
 /**
- * @brief Semaphore to indicate that RTC has triggered its IRQ
- */
-SemaphoreHandle_t RTC_IRQ;
-
-/**
  * @brief Semaphore to indicate UART new data in RX
  */
 SemaphoreHandle_t UART_RX_IRQ;
@@ -72,29 +68,44 @@ SemaphoreHandle_t UART_RX_IRQ;
 SemaphoreHandle_t UART_TX_IRQ;
 
 /**
- * @brief GPIO IRQ task, it depends on #GUI_GPIO_IRQ
+ * @brief Semaphore to indicat if Watchdog has been enabled
+ */
+SemaphoreHandle_t WDT_Enable;
+
+/**
+ * @brief Semaphore to indicat if Watchdog has been feed
+ */
+SemaphoreHandle_t WDT_Feed;
+
+/**
+ * @brief GPIO IRQ task handle, it depends on #mutex_gpio
  */
 TaskHandle_t GPIO_IRQ_handle;
 
 /**
- * @brief RTC IRQ task
+ * @brief RTC IRQ task handle
  */
 TaskHandle_t RTC_IRQ_handle;
 
 /**
- * @brief DAC IRQ task
+ * @brief DAC IRQ task handle
  */
 TaskHandle_t DAC_IRQ_handle;
 
 /**
- * @brief UART IRQ task
+ * @brief UART IRQ task handle
  */
 TaskHandle_t UART_IRQ_handle;
 
 /**
- * @brief ADC IRQ task
+ * @brief ADC IRQ task handle
  */
 TaskHandle_t ADC_IRQ_handle;
+
+/**
+ * @brief Watchdog task handle
+ */
+TaskHandle_t WDT_handle;
 
 /* Forward declarations */
 
@@ -117,6 +128,25 @@ TaskHandle_t ADC_IRQ_handle;
  * @brief ADC thread
  */
 [[noreturn]] void ADC_IRQ_thread(void *);
+
+/**
+ * @brief Watchdog thread
+ */
+[[noreturn]] void WDT_thread(void *);
+
+/**
+ * @brief  write callback function for WDT_CTRL register
+ * @param val unused
+ * @param param unused
+ */
+void WDT_cb(int val, int param);
+
+/**
+ * @brief write callback function for WDT_CMD register
+ * @param val value to write
+ * @param param unused
+ */
+void WDT_feed_cb(int val, int param);
 
 /**
  * @brief UART class
@@ -168,8 +198,7 @@ __attribute__((weak)) void UART_TX_ISR(void);
 [[noreturn]] void GPIO_IRQ_thread(void *parameters) {
     (void) parameters;
     while (true) {
-        if (sem_wait(&mutex_gpio) == 0)
-       {
+        if (sem_wait(&mutex_gpio) == 0) {
             uint32_t pending_irq = memory[ADDR_NVIC_IRQ];
 
             if (pending_irq & NVIC_PORTA_IRQ_BIT) {
@@ -198,26 +227,26 @@ void GPIO_in_cb(int val, int param) {
     uint32_t bit;
 
     switch (param) {
-    case 1:
-        addr = ADDR_PORTA_INT;
-        bit = NVIC_PORTA_IRQ_BIT;
-        break;
-    case 2:
-        addr = ADDR_PORTB_INT;
-        bit = NVIC_PORTB_IRQ_BIT;
-        break;
-    case 3:
-        addr = ADDR_PORTC_INT;
-        bit = NVIC_PORTC_IRQ_BIT;
-        break;
-    case 4:
-        addr = ADDR_PORTD_INT;
-        bit = NVIC_PORTD_IRQ_BIT;
-        break;
-    default:
-        addr = 0;
-        bit = 0;
-        break;
+        case 1:
+            addr = ADDR_PORTA_INT;
+            bit = NVIC_PORTA_IRQ_BIT;
+            break;
+        case 2:
+            addr = ADDR_PORTB_INT;
+            bit = NVIC_PORTB_IRQ_BIT;
+            break;
+        case 3:
+            addr = ADDR_PORTC_INT;
+            bit = NVIC_PORTC_IRQ_BIT;
+            break;
+        case 4:
+            addr = ADDR_PORTD_INT;
+            bit = NVIC_PORTD_IRQ_BIT;
+            break;
+        default:
+            addr = 0;
+            bit = 0;
+            break;
     }
 
     if ((memory[addr] & val) != 0) {
@@ -235,7 +264,7 @@ void GPIO_in_cb(int val, int param) {
  */
 void Trace_cb(int val, int param) {
     (void) param;
-    gui_add_trace((char)(val & 0x00FF));
+    gui_add_trace((char) (val & 0x00FF));
 }
 
 void send_to_uart(int value, int uart);
@@ -247,6 +276,7 @@ void SoC_Init() {
     xTaskCreate(DAC_IRQ_thread, "DAC", 10000, nullptr, 1, &DAC_IRQ_handle);
     xTaskCreate(UART_IRQ_thread, "UART", 10000, nullptr, 1, &UART_IRQ_handle);
     //xTaskCreate(ADC_IRQ_thread, "ADC", 10000, nullptr, 1, &ADC_IRQ_handle);
+    xTaskCreate(WDT_thread, "WDT", 1000, nullptr, 1, &WDT_handle);
 
 
     memory[ADDR_PORTA_IN].register_wr_cb(GPIO_in_cb, 1);
@@ -256,20 +286,23 @@ void SoC_Init() {
 
     memory[ADDR_TRACE].register_wr_cb(Trace_cb, 0);
 
-    //GUI_GPIO_IRQ = xSemaphoreCreateBinary();
-    sem_init (&mutex_gpio, 0, 0);
-    RTC_IRQ = xSemaphoreCreateBinary();
+    memory[ADDR_WDOG_CTRL].register_wr_cb(WDT_cb, 0);
+    memory[ADDR_WDOG_CMD].register_wr_cb(WDT_feed_cb, 5);
+
+    sem_init(&mutex_gpio, 0, 0);
+
     UART_RX_IRQ = xSemaphoreCreateBinary();
+    WDT_Feed = xSemaphoreCreateBinary();
+    WDT_Enable = xSemaphoreCreateBinary();
 
     uart0 = new UART(9600);
 
-    memory[ADDR_UART_TXDATA].register_wr_cb ( send_to_uart, 0);
+    memory[ADDR_UART_TXDATA].register_wr_cb(send_to_uart, 0);
 }
 
 void send_to_uart(int value, int uart) {
     (void) uart;
-    std::cout << "send_to_uart Tx : " << (char)value << std::endl;
-    //uart0->send(value);
+    uart0->send(value);
 }
 
 void I2CSlaveSet(int dev, int val) {
@@ -446,7 +479,7 @@ void insert_DACVal(float data) {
     }
 }
 
-float get_DACVal (void* data, int idx) {
+float get_DACVal(void *data, int idx) {
     (void) data;
     return DACValues[idx];
 }
@@ -461,7 +494,7 @@ float get_DACVal (void* data, int idx) {
         if (memory[ADDR_DAC_CTRL] & 0x01) {
             uint32_t dac_data = memory[ADDR_DAC_DATA];
             dac_data = dac_data & 0x00000FFF;   // DAC uses only 12 bits
-            insert_DACVal(dac_data);
+            insert_DACVal((float) dac_data);
 
             if (memory[ADDR_DAC_CTRL] & 0x00000080) {
                 uint32_t aux = memory[ADDR_NVIC_IRQ];
@@ -488,7 +521,7 @@ void UART_NotifyRxData() {
     xSemaphoreGive(UART_RX_IRQ);
 }
 
-const char* getUART_Path() {
+const char *getUART_Path() {
     return uart0->getDevicename().c_str();
 }
 
@@ -517,7 +550,56 @@ const char* getUART_Path() {
 
 [[noreturn]] void ADC_IRQ_thread(void *parameters) {
     (void) parameters;
-    while(1) {
+    while (true) {
 
+    }
+}
+
+/******************** WDT **********************/
+
+/**
+ * @brief Watchdog task thread
+ * @param parameters unused
+ */
+[[noreturn]] void WDT_thread(void *parameters) {
+    (void) parameters;
+
+    while (true) {
+
+        xSemaphoreTake(WDT_Enable, portMAX_DELAY);
+        bool enabled;
+        do {
+            /* if enabled, start count-down */
+            enabled = memory[ADDR_WDOG_CTRL] & 0x00000001;
+            if (enabled) {
+                unsigned int wdt_time = (memory[ADDR_WDOG_CTRL] >> WDT_CTRL_PRESCALER_SHIFT) & 0x0000000F;
+                wdt_time = (1 << wdt_time) * 16;
+                if (xSemaphoreTake (WDT_Feed, wdt_time / portTICK_PERIOD_MS) == pdFALSE) {
+                    /* Time-out, nobody has feed us, we are angry and bit the bone */
+                    std::cout << "********************* WDT RESET !!! ************************\n" << std::endl;
+                    vTaskEndScheduler();
+                } else {
+                    /* Somebody feed the watchdog, nothings happens */
+                }
+            }
+        } while (enabled);
+
+    }
+}
+
+void WDT_cb(int val, int param) {
+    (void) val;
+    (void) param;
+
+    if (memory[ADDR_WDOG_CTRL] & 0x00000001) {
+        xSemaphoreGive(WDT_Enable);
+    }
+}
+
+void WDT_feed_cb(int val, int param) {
+    (void) val;
+    (void) param;
+    if (val == 0x00505345) {
+        xSemaphoreGive(WDT_Feed);
     }
 }
