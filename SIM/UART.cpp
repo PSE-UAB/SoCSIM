@@ -13,7 +13,6 @@
 #include <cstring>
 #include <fcntl.h>
 #include <termios.h>
-#include <iostream>
 #include <thread>
 
 typedef void * (*THREADFUNCPTR)(void *);
