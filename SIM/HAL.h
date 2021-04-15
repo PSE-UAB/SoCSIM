@@ -47,7 +47,9 @@ typedef enum {
     PRESCALER256 = 256,
 } timer_prescaler_t;
 
-
+/**
+ * @brief Watchdog pre-scaler possible values
+ */
 typedef enum {
     WDT_16_MS = 0,
     WDT_32_MS,
