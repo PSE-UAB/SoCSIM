@@ -447,6 +447,24 @@ uint32_t get_test() {
    return *RTC_CNT;
 }
 
+/******************** WDT **********************/
+
+bool WDOG_Enable() {
+    memory[ADDR_WDOG_CTRL] |= 0x00000001;
+    return true;
+}
+
+bool WDOG_PrescalerSet(wdt_cycles_t pres) {
+    memory[ADDR_WDOG_CTRL] |= (pres & 0xFF) << WDT_CTRL_PRESCALER_SHIFT;
+    return true;
+}
+
+bool WDOG_Feed() {
+    memory[ADDR_WDOG_CMD] = 0x00505345;
+    return true;
+}
+
+
 /******************************** Memory access ******************************/
 void HAL_MemoryWrite(uint32_t addr, uint32_t data) {
     memory[addr] = data;
@@ -455,3 +473,6 @@ void HAL_MemoryWrite(uint32_t addr, uint32_t data) {
 uint32_t HAL_MemoryRead(uint32_t addr) {
     return memory[addr];
 }
+
+
+

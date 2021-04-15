@@ -48,6 +48,19 @@ typedef enum {
 } timer_prescaler_t;
 
 
+typedef enum {
+    WDT_16_MS = 0,
+    WDT_32_MS,
+    WDT_64_MS,
+    WDT_125_MS,
+    WDT_250_MS,
+    WDT_500_MS,
+    WDT_1000_MS,
+    WDT_2000_MS,
+    WDT_4000_MS,
+    WDT_8000_MS,
+} wdt_cycles_t;
+
 /************************************ GPIO ***********************************/
 
 /**
@@ -313,6 +326,27 @@ uint32_t ADC_GetStatus();
 uint32_t ADC_GetData();
 
 
+
+/************************************ WDT ************************************/
+
+/**
+ * @brief Enables system watchdog
+ * @return true
+ */
+bool WDOG_Enable();
+
+/**
+ * @brief Sets watchdog prescaler
+ * @param pres Prescaler value
+ * @return true
+ */
+bool WDOG_PrescalerSet(wdt_cycles_t pres);
+
+/**
+ * @brief Resets the watchdog to avoid system reset
+ * @return true
+ */
+bool WDOG_Feed();
 
 /******************************** Memory access ******************************/
 
