@@ -33,7 +33,7 @@ It is required a C/C++ compiler compatible with C++17. Tested with gcc 10.2.0 on
 ```
 git clone https://github.com/FreeRTOS/FreeRTOS-Kernel.git
 git clone https://github.com/michaelbecker/freertos-addons.git
-git clone git@github.com:mariusmm/SoCSIM.git
+git clone https://github.com/mariusmm/SoCSIM.git
 cd SoCSIM
 ```
 
