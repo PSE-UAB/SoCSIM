@@ -217,7 +217,7 @@ bool HAL_Trace(char c) {
 
 bool TIMER_PrescalerSet(timer_prescaler_t pres) {
 #if 1
-    memory[ADDR_TIMER_CTRL] |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
+    memory[ADDR_TIMER_CTRL] |= (pres & 0xFFF) << TIMER_CTRL_PRESCALER_SHIFT;
 #else
     uint32_t aux = memory[ADDR_TIMER_CTRL];
     aux |= (pres & 0xFF) << TIMER_CTRL_PRESCALER_SHIFT;
@@ -228,7 +228,7 @@ bool TIMER_PrescalerSet(timer_prescaler_t pres) {
 
 timer_prescaler_t TIMER_PrescalerGet() {
     uint32_t pres = memory[ADDR_TIMER_CTRL];
-    pres = pres >> (TIMER_CTRL_PRESCALER_SHIFT) & 0xFF;
+    pres = pres >> (TIMER_CTRL_PRESCALER_SHIFT) & 0xFFF;
 
     return (timer_prescaler_t) pres;
 }
@@ -386,7 +386,6 @@ uint32_t UART_GetStatus() {
 uint8_t UART_Rx() {
     return (memory[ADDR_UART_RXDATA] & 0x000000FF);
 }
-
 
 bool UART_Tx(uint8_t data) {
     memory[ADDR_UART_TXDATA] = data;

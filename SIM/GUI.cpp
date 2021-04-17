@@ -258,7 +258,7 @@ void *gui_thread(void *ptr) {
             unsigned int pwmduty = PWMDutyGet();
             ImGui::Button("PWM Freq");
             ImGui::SameLine();
-            ImGui::Text("%3d MHz", pwmfreq);
+            ImGui::Text("%3d Hz", pwmfreq);
             ImGui::Button("PWM Duty");
             ImGui::SameLine();
             ImGui::Text("%3d %%", pwmduty);
