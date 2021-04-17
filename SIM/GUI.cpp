@@ -117,7 +117,7 @@ void *gui_thread(void *ptr) {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     auto window_flags = (SDL_WindowFlags) (
             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED,
+    SDL_Window *window = SDL_CreateWindow("SoCSIM", SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED, 800, 500, window_flags);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
