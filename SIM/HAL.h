@@ -32,6 +32,11 @@ typedef enum {
     ADC_CHAN_1 = 1,
 } ADC_channel_t;
 
+typedef enum {
+    SINGLE = 0,
+    DIFFERENTIAL = 1,
+} ADC_mode_t;
+
 /**
  * @brief Timer pre-scaler possible values
  */
@@ -319,11 +324,13 @@ bool UART_Tx(uint8_t data);
 
 /************************************ ADC ************************************/
 
-bool ADC_Init();
+bool ADC_Init(ADC_mode_t mode);
 bool ADC_Enable();
 bool ADC_Disable();
 bool ADC_IntEnable();
 bool ADC_IntDisable();
+bool ADC_EnableChannel(ADC_channel_t);
+uint32_t ADC_ReadChannel(ADC_channel_t);
 uint32_t ADC_GetStatus();
 uint32_t ADC_GetData();
 

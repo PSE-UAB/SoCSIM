@@ -168,9 +168,8 @@ void *gui_thread(void *ptr) {
     // Main loop
     bool done = false;
 
-    //int i2c1 = 128;
-
-
+    int adc_0 = 0;
+    int adc_1 = 0;
 
     while (!done) {
         SDL_Event event;
@@ -206,7 +205,7 @@ void *gui_thread(void *ptr) {
 
             ImGui::PushID(0);
 
-            if (SoC_LED1On() == true) {
+            if (SoC_LED1On()) {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(0, 0.8f, 0.8f));
@@ -222,7 +221,7 @@ void *gui_thread(void *ptr) {
             ImGui::SameLine();
             ImGui::PushID(1);
 
-            if (SoC_LED2On() == true) {
+            if (SoC_LED2On()) {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4) ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
@@ -237,18 +236,20 @@ void *gui_thread(void *ptr) {
             ImGui::PopID();
             ImGui::End();
 
-            /************** I2C ***************/
-//            ImGui::Begin("I2C");
-//            ImGui::SliderInt("I2C Device #1", &i2c1, 0, 255);
-//            I2CSlaveSet(1, i2c1);
-//            ImGui::SameLine();
-//            ImGui::End();
+            /************** ADC ***************/
+            ImGui::Begin("ADC");
+            ImGui::SliderInt("Channel #0", &adc_0, 0, 4095);
+            ImGui::SliderInt("Channel #1", &adc_1, 0, 4095);
+            ADCSetValue(0, adc_0);
+            ADCSetValue(1, adc_1);
+            ImGui::SameLine();
+            ImGui::End();
 
             /************** TRACE ***************/
             ImGui::Begin("Trace");
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
-            ImGui::Text("%s", trace_console->c_str());
+            ImGui::TextWrapped("%s", trace_console->c_str());
             ImGui::EndChild();
             ImGui::End();
 

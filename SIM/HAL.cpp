@@ -394,21 +394,8 @@ bool UART_Tx(uint8_t data) {
 
 
 /************************************ ADC ************************************/
-bool ADC_Init(ADC_channel_t ch) {
-    uint32_t aux;
-    switch (ch) {
-        case ADC_CHAN_0:
-            aux = (1 << 2);
-            break;
-        case ADC_CHAN_1:
-            aux = (1 << 3);
-            break;
-        default:
-            aux = 0;
-            break;
-    }
-
-    memory[ADDR_ADC_ADMUX] = aux;
+bool ADC_Init(ADC_mode_t mode) {
+    memory[ADDR_ADC_CTRL] |= (mode << 1);
     return true;
 }
 
@@ -439,6 +426,27 @@ uint32_t ADC_GetStatus() {
 uint32_t ADC_GetData() {
     return memory[ADDR_ADC_DATA];
 }
+
+bool ADC_EnableChannel(ADC_channel_t ch) {
+
+    uint32_t aux;
+    switch (ch) {
+        case ADC_CHAN_0:
+            aux = (1 << 2);
+            break;
+        case ADC_CHAN_1:
+            aux = (1 << 3);
+            break;
+        default:
+            aux = 0;
+            break;
+    }
+
+    memory[ADDR_ADC_ADMUX] = aux;
+
+    return true;
+}
+
 
 #define RTC_CNT  (&memory[ADDR_RTC_CNT])
 
