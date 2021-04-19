@@ -250,6 +250,7 @@ void *gui_thread(void *ptr) {
             ImGui::Text("Trace output");
             ImGui::BeginChild("Scrolling");
             ImGui::TextWrapped("%s", trace_console->c_str());
+            ImGui::SetScrollHereY(1.0f);
             ImGui::EndChild();
             ImGui::End();
 
