@@ -59,7 +59,7 @@ enum {
 /**
  * @brief definition of callback function type
  */
-using cb_func = std::function<void(uint32_t, uint32_t)>;
+using cb_func = std::function<uint32_t(uint32_t, uint32_t)>;
 
 struct WordMem {
     WordMem() :
@@ -77,10 +77,15 @@ struct WordMem {
     }
 
     operator uint32_t() const {
+        uint32_t ret_val;
+
         if (cb_rd) {
-            cb_rd(data, param_rd);
+            ret_val =  cb_rd(data, param_rd);
+        } else {
+            ret_val = data;
         }
-        return data;
+
+        return ret_val;
     }
 
     uint32_t operator &=(int p_data) {
