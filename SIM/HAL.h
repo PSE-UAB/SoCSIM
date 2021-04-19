@@ -27,11 +27,17 @@ typedef enum {
     PORTD
 } Port;
 
+/**
+ * @brief Available ADC channeñs
+ */
 typedef enum {
     ADC_CHAN_0 = 0,
     ADC_CHAN_1 = 1,
 } ADC_channel_t;
 
+/**
+ * @brief ADC run mode
+ */
 typedef enum {
     SINGLE = 0,
     DIFFERENTIAL = 1,
@@ -324,14 +330,54 @@ bool UART_Tx(uint8_t data);
 
 /************************************ ADC ************************************/
 
+/**
+ * @brief initializes ADC and sets proper mode
+ * @param mode ADC can be configured as single-ended or differential
+ * @return true
+ */
 bool ADC_Init(ADC_mode_t mode);
+
+/**
+ * @brief Enables ADC peripheral
+ * @return true
+ */
 bool ADC_Enable();
+
+/**
+ * @brief Disables ADC peripheral
+ * @return true
+ */
 bool ADC_Disable();
+
+/**
+ * @brief Enables ADC interrupts
+ * @return true
+ */
 bool ADC_IntEnable();
+
+/**
+ * @brief Disables ADC interrupts
+ * @return true
+ */
 bool ADC_IntDisable();
-bool ADC_EnableChannel(ADC_channel_t);
-uint32_t ADC_ReadChannel(ADC_channel_t);
+
+/**
+ * @brief Enables ADC conversion for channel
+ * @param ch channel to convert (in single-ended mode)
+ * @return true
+ */
+bool ADC_EnableChannel(ADC_channel_t ch);
+
+/**
+ * @brief Get ADC status
+ * @return ADC_STATUS register value
+ */
 uint32_t ADC_GetStatus();
+
+/**
+ * @brief returns last ADC conversion data
+ * @return conversion data
+ */
 uint32_t ADC_GetData();
 
 
