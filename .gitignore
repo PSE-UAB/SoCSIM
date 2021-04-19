@@ -9,3 +9,6 @@ obj/GUI/*.o
 doc/html
 doc/latex
 
+/cmake-build-debug/
+/new/
+/build/
