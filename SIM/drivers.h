@@ -8,9 +8,6 @@
 #ifndef DRIVERS_H_
 #define DRIVERS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void GreenLED_On();
 void GreenLED_Off();
@@ -19,9 +16,5 @@ void RedLED_On();
 void RedLED_Off();
 void RedLED_Toggle();
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

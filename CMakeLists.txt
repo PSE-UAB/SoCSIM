@@ -13,7 +13,7 @@ add_compile_options(-Wall -Wextra -pedantic -fPIC -pthread -O3)
 include_directories(./GUI/inc/)
 file(GLOB SRC_GUI "GUI/*.cpp")
 file (GLOB SRC_FREERTOS "../FreeRTOS-Kernel/*.c" "../freertos-addons/Linux/portable/GCC/Linux/*.c" "../FreeRTOS-Kernel/portable/MemMang/heap_3.c")
-file(GLOB SRC_SIM "SIM/*.cpp")
+file(GLOB SRC_SIM "SIM/*.cpp" "SIM/*.c")
 
 include_directories(.)
 include_directories(../FreeRTOS-Kernel/include)
