@@ -139,14 +139,21 @@ TaskHandle_t WDT_handle;
  * @param val unused
  * @param param unused
  */
-void WDT_cb(int val, int param);
+uint32_t WDT_cb(int val, int param);
 
 /**
  * @brief write callback function for WDT_CMD register
  * @param val value to write
  * @param param unused
  */
-void WDT_feed_cb(int val, int param);
+uint32_t WDT_feed_cb(int val, int param);
+
+/**
+ * @brief read callback function for ADC data register
+ * @param val unused
+ * @param param unused
+ */
+uint32_t ADC_data_cb(int val, int param);
 
 /**
  * @brief UART class
@@ -221,7 +228,7 @@ __attribute__((weak)) void UART_TX_ISR(void);
  * @param val PIN that has a change
  * @param param PORT that has a change
  */
-void GPIO_in_cb(int val, int param) {
+uint32_t GPIO_in_cb(int val, int param) {
 
     uint32_t addr;
     uint32_t bit;
@@ -255,6 +262,8 @@ void GPIO_in_cb(int val, int param) {
         memory[ADDR_NVIC_IRQ] = aux;
         sem_post(&mutex_gpio);
     }
+
+    return 0;
 }
 
 /**
@@ -262,12 +271,13 @@ void GPIO_in_cb(int val, int param) {
  * @param val character written
  * @param param unused
  */
-void Trace_cb(int val, int param) {
+uint32_t Trace_cb(int val, int param) {
     (void) param;
     gui_add_trace((char) (val & 0x00FF));
+    return 0;
 }
 
-void send_to_uart(int value, int uart);
+uint32_t send_to_uart(int value, int uart);
 
 void SoC_Init() {
 
@@ -289,6 +299,8 @@ void SoC_Init() {
     memory[ADDR_WDOG_CTRL].register_wr_cb(WDT_cb, 0);
     memory[ADDR_WDOG_CMD].register_wr_cb(WDT_feed_cb, 5);
 
+    memory[ADDR_ADC_DATA].register_rd_cb(ADC_data_cb, 0);
+
     sem_init(&mutex_gpio, 0, 0);
 
     UART_RX_IRQ = xSemaphoreCreateBinary();
@@ -300,9 +312,10 @@ void SoC_Init() {
     memory[ADDR_UART_TXDATA].register_wr_cb(send_to_uart, 0);
 }
 
-void send_to_uart(int value, int uart) {
+uint32_t send_to_uart(int value, int uart) {
     (void) uart;
     uart0->send(value);
+    return 0;
 }
 
 void I2CSlaveSet(int dev, int val) {
@@ -548,11 +561,49 @@ const char *getUART_Path() {
 
 /******************** ADC **********************/
 
+uint16_t ADC_values[2] = {0};
+
 [[noreturn]] void ADC_IRQ_thread(void *parameters) {
     (void) parameters;
     while (true) {
 
     }
+}
+
+void ADCSetValue(int ch, uint16_t value) {
+    if (ch < 2) {
+        ADC_values[ch] = value;
+    }
+}
+
+uint32_t ADC_data_cb(int val, int param) {
+    (void) param;
+    uint32_t mode;
+    uint32_t aux;
+    uint32_t ch;
+
+    mode = ( memory[ADDR_ADC_CTRL] >> 1 ) & 0x0000000F;
+
+    aux = memory[ADDR_ADC_ADMUX];
+    ch = (aux >> 2);
+
+    if (mode == SINGLE) {
+        switch (ch) {
+            case 1:
+                val = ADC_values[0];
+                break;
+            case 2:
+                val = ADC_values[1];
+                break;
+            default:
+                val = 0xFFFF;
+                break;
+        }
+    } else {
+        val = ADC_values[0] - ADC_values[1];
+    }
+    std::cout << "ADC val " << val << '\n';
+    return val;
 }
 
 /******************** WDT **********************/
@@ -587,19 +638,23 @@ const char *getUART_Path() {
     }
 }
 
-void WDT_cb(int val, int param) {
+uint32_t WDT_cb(int val, int param) {
     (void) val;
     (void) param;
 
     if (memory[ADDR_WDOG_CTRL] & 0x00000001) {
         xSemaphoreGive(WDT_Enable);
     }
+
+    return 0;
 }
 
-void WDT_feed_cb(int val, int param) {
+uint32_t WDT_feed_cb(int val, int param) {
     (void) val;
     (void) param;
     if (val == 0x00505345) {
         xSemaphoreGive(WDT_Feed);
     }
+
+    return 0;
 }

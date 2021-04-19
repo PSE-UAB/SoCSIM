@@ -157,6 +157,8 @@ uint16_t UART_GetBaudRate();
  */
 void UART_NotifyRxData();
 
+void ADCSetValue(int ch, uint16_t value);
+
 #ifdef __cplusplus
 }
 #endif
