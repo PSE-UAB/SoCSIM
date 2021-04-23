@@ -37,6 +37,12 @@ git clone https://github.com/mariusmm/SoCSIM.git
 cd SoCSIM
 ```
 
+SDL2 is required, install it with:
+```
+sudo apt install libsdl2-dev libsdl2-2.0-0
+```
+
+
 ## Build
 Build is based on cmake, so in SoCSIM directory run the following commands: 
 ```
