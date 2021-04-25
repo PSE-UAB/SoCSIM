@@ -22,7 +22,12 @@ include_directories(../freertos-addons/Linux/portable/GCC/Linux)
 find_package(SDL2 REQUIRED)
 include_directories(SoCSIM ${SDL2_INCLUDE_DIRS})
 
-cmake_policy(SET CMP0072 NEW)
+if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
+    set(OpenGL_GL_PREFERENCE GLVND)
+else()
+    cmake_policy(SET CMP0072 NEW)
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
