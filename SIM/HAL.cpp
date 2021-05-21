@@ -233,12 +233,12 @@ timer_prescaler_t TIMER_PrescalerGet() {
     return (timer_prescaler_t) pres;
 }
 
-bool TIMER_SetTOP(uint32_t top) {
+bool TIMER_SetTOP(uint16_t top) {
     memory[ADDR_TIMER_TOP] = top;
     return true;
 }
 
-bool TIMER_SetCMP(uint32_t cmp) {
+bool TIMER_SetCMP(uint16_t cmp) {
     memory[ADDR_TIMER_CMP] = cmp;
     return true;
 }

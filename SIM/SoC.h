@@ -13,6 +13,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "stdbool.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,7 +137,7 @@ unsigned int TimerFreqGet();
 /**
  * DAC buffer size
  */
-const int DAC_TOTAL_VALUES = 50;
+#define DAC_TOTAL_VALUES (50)
 
 /**
  * @brief accessor to DAC output buffer for GUI

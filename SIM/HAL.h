@@ -7,6 +7,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 
+#ifndef _HAL_H_
+#define _HAL_H_
+
 #include "FreeRTOS.h"
 #include "semphr.h"
 
@@ -177,14 +180,14 @@ timer_prescaler_t TIMER_PrescalerGet();
  * @param top TOP value
  * @return true on success
  */
-bool TIMER_SetTOP(uint32_t top);
+bool TIMER_SetTOP(uint16_t top);
 
 /**
  * @brief Sets compare value for TIMER
  * @param cmp compare value
  * @return true on success
  */
-bool TIMER_SetCMP(uint32_t cmp);
+bool TIMER_SetCMP(uint16_t cmp);
 
 /**
  * @brief Enables TIMER
@@ -421,4 +424,6 @@ uint32_t HAL_MemoryRead(uint32_t addr);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -8,6 +8,14 @@
 #ifndef DRIVERS_H_
 #define DRIVERS_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+#include "queue.h"
+
+#include "SIM/GUI.h"
+#include "SIM/SoC.h"
+#include "SIM/HAL.h"
 
 void GreenLED_On();
 void GreenLED_Off();
